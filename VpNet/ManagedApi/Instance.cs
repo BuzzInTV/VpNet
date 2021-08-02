@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,13 +93,13 @@ namespace VpNet.ManagedApi
         private void InitVpNative()
         {
                
-            int rc = Functions.vp_init(5);
+            int rc = Native.vp_init(5);
             if (rc != 0)
             {
                 throw new VpException((ReasonCode)rc);
             }
 
-            _instance = Functions.vp_create(ref netConfig);
+            _instance = Native.vp_create(ref netConfig);
 
             SetNativeEvent(NativeEvent.Chat, OnChatNative1);
             SetNativeEvent(NativeEvent.AvatarAdd, OnAvatarAddNative1);
@@ -235,7 +234,7 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 ConnectCompletionSource = new TaskCompletionSource<object>();
-                var rc = Functions.vp_connect_universe(_instance, host, port);
+                var rc = Native.vp_connect_universe(_instance, host, port);
                 if (rc != 0)
                 {
                     return Task.FromException(new VpException((ReasonCode)rc));
@@ -276,11 +275,11 @@ namespace VpNet.ManagedApi
                 Configuration.BotName = botname;
                 Configuration.UserName = username;
                 Configuration.Password = password;
-                Functions.vp_string_set(_instance, StringAttribute.ApplicationName, Configuration.ApplicationName);
-                Functions.vp_string_set(_instance, StringAttribute.ApplicationVersion, Configuration.ApplicationVersion);
+                Native.vp_string_set(_instance, StringAttribute.ApplicationName, Configuration.ApplicationName);
+                Native.vp_string_set(_instance, StringAttribute.ApplicationVersion, Configuration.ApplicationVersion);
 
                 LoginCompletionSource = new TaskCompletionSource<object>();
-                var rc = Functions.vp_login(_instance, username, password, botname);
+                var rc = Native.vp_login(_instance, username, password, botname);
                 if (rc != 0)
                 {
                     return Task.FromException(new VpException((ReasonCode)rc));
@@ -318,7 +317,7 @@ namespace VpNet.ManagedApi
                 Configuration.World = world;
 
                 EnterCompletionSource = new TaskCompletionSource<object>();
-                var rc = Functions.vp_enter(_instance, world.Name);
+                var rc = Native.vp_enter(_instance, world.Name);
                 if (rc != 0)
                 {
                     return Task.FromException(new VpException((ReasonCode)rc));
@@ -332,19 +331,19 @@ namespace VpNet.ManagedApi
         {
             return new Avatar
             {
-                UserId = Functions.vp_int(_instance, IntegerAttribute.MyUserId),
+                UserId = Native.vp_int(_instance, IntegerAttribute.MyUserId),
                 Name = Configuration.BotName,
-                AvatarType = Functions.vp_int(_instance, IntegerAttribute.MyType),
-                Position = new Vector3
+                AvatarType = Native.vp_int(_instance, IntegerAttribute.MyType),
+                Position = new Vector3d
                 {
-                    X = Functions.vp_double(_instance, FloatAttribute.MyX),
-                    Y = Functions.vp_double(_instance, FloatAttribute.MyY),
-                    Z = Functions.vp_double(_instance, FloatAttribute.MyZ)
+                    X = Native.vp_double(_instance, FloatAttribute.MyX),
+                    Y = Native.vp_double(_instance, FloatAttribute.MyY),
+                    Z = Native.vp_double(_instance, FloatAttribute.MyZ)
                 },
-                Rotation = new Vector3
+                Rotation = new Vector3d
                 {
-                    X = Functions.vp_double(_instance, FloatAttribute.MyPitch),
-                    Y = Functions.vp_double(_instance, FloatAttribute.MyYaw),
+                    X = Native.vp_double(_instance, FloatAttribute.MyPitch),
+                    Y = Native.vp_double(_instance, FloatAttribute.MyYaw),
                     Z = 0 /* roll currently not supported*/
                 },
                 LastChanged = DateTime.Now
@@ -358,7 +357,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_leave(_instance));
+                CheckReasonCode(Native.vp_leave(_instance));
                 OnWorldLeave?.Invoke(this, new WorldLeaveEventArgs { World = Configuration.World });
             }
         }
@@ -366,7 +365,7 @@ namespace VpNet.ManagedApi
         virtual public void Disconnect()
         {
             _avatars.Clear();
-            Functions.vp_destroy(_instance);
+            Native.vp_destroy(_instance);
             _isInitialized = false;
             InitVpNative();
             OnUniverseDisconnect?.Invoke(this, new UniverseDisconnectEventArgs { Universe = Universe, DisconnectType = VpNet.DisconnectType.UserDisconnected });
@@ -376,7 +375,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_list(_instance, 0));
+                CheckReasonCode(Native.vp_world_list(_instance, 0));
             }
         }
 
@@ -388,7 +387,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_query_cell(_instance, cellX, cellZ));
+                CheckReasonCode(Native.vp_query_cell(_instance, cellX, cellZ));
             }
         }
 
@@ -396,7 +395,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_query_cell_revision(_instance, cellX, cellZ, revision));
+                CheckReasonCode(Native.vp_query_cell_revision(_instance, cellX, cellZ, revision));
             }
         }
 
@@ -416,7 +415,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, objectId, 0, 0, 0, 0));
+                CheckReasonCode(Native.vp_object_click(_instance, objectId, 0, 0, 0, 0));
             }
         }
 
@@ -432,7 +431,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, vpObject.Id, avatar.Session, (float)worldHit.X, (float)worldHit.Y, (float)worldHit.Z));
+                CheckReasonCode(Native.vp_object_click(_instance, vpObject.Id, avatar.Session, (float)worldHit.X, (float)worldHit.Y, (float)worldHit.Z));
             }
         }
 
@@ -440,7 +439,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, vpObject.Id, 0, (float)worldHit.X, (float)worldHit.Y, (float)worldHit.Z));
+                CheckReasonCode(Native.vp_object_click(_instance, vpObject.Id, 0, (float)worldHit.X, (float)worldHit.Y, (float)worldHit.Z));
             }
         }
 
@@ -448,7 +447,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, objectId, toSession, (float)worldHitX, (float)worldHitY, (float)worldHitZ));
+                CheckReasonCode(Native.vp_object_click(_instance, objectId, toSession, (float)worldHitX, (float)worldHitY, (float)worldHitZ));
             }
         }
 
@@ -456,7 +455,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, objectId, 0, (float)worldHitX, (float)worldHitY, (float)worldHitZ));
+                CheckReasonCode(Native.vp_object_click(_instance, objectId, 0, (float)worldHitX, (float)worldHitY, (float)worldHitZ));
             }
         }
 
@@ -464,7 +463,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_object_click(_instance, objectId, toSession, 0, 0, 0));
+                CheckReasonCode(Native.vp_object_click(_instance, objectId, toSession, 0, 0, 0));
             }
         }
 
@@ -475,9 +474,9 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 _objectCompletionSources.Add(referenceNumber, tcs);
-                Functions.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
+                Native.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
 
-                int rc = Functions.vp_object_delete(_instance,vpObject.Id);
+                int rc = Native.vp_object_delete(_instance,vpObject.Id);
                 if (rc != 0)
                 {
                     _objectCompletionSources.Remove(referenceNumber);
@@ -495,24 +494,24 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 _objectCompletionSources.Add(referenceNumber, tcs);
-                Functions.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
-                Functions.SetData(_instance, DataAttribute.ObjectData, vpObject.Data);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectUserId, vpObject.Owner);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectTime, (int)new DateTimeOffset(vpObject.Time).ToUnixTimeSeconds());
+                Native.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
+                Native.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
+                Native.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
+                Native.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
+                Native.SetData(_instance, DataAttribute.ObjectData, vpObject.Data);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectUserId, vpObject.Owner);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectTime, (int)new DateTimeOffset(vpObject.Time).ToUnixTimeSeconds());
 
-                int rc = Functions.vp_object_load(_instance);
+                int rc = Native.vp_object_load(_instance);
                 if (rc != 0)
                 {
                     _objectCompletionSources.Remove(referenceNumber);
@@ -533,22 +532,22 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 _objectCompletionSources.Add(referenceNumber, tcs);
-                Functions.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
-                Functions.SetData(_instance, DataAttribute.ObjectData, vpObject.Data);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
+                Native.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
+                Native.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
+                Native.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
+                Native.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
+                Native.SetData(_instance, DataAttribute.ObjectData, vpObject.Data);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
 
-                int rc = Functions.vp_object_add(_instance);
+                int rc = Native.vp_object_add(_instance);
                 if (rc != 0)
                 {
                     _objectCompletionSources.Remove(referenceNumber);
@@ -569,21 +568,21 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 _objectCompletionSources.Add(referenceNumber, tcs);
-                Functions.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
-                Functions.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
-                Functions.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
-                Functions.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
+                Native.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectId, vpObject.Id);
+                Native.vp_string_set(_instance, StringAttribute.ObjectAction, vpObject.Action);
+                Native.vp_string_set(_instance, StringAttribute.ObjectDescription, vpObject.Description);
+                Native.vp_string_set(_instance, StringAttribute.ObjectModel, vpObject.Model);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationX, vpObject.Rotation.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationY, vpObject.Rotation.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationZ, vpObject.Rotation.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectX, vpObject.Position.X);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectY, vpObject.Position.Y);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectZ, vpObject.Position.Z);
+                Native.vp_double_set(_instance, FloatAttribute.ObjectRotationAngle, vpObject.Angle);
+                Native.vp_int_set(_instance, IntegerAttribute.ObjectType, vpObject.ObjectType);
 
-                int rc = Functions.vp_object_change(_instance);
+                int rc = Native.vp_object_change(_instance);
                 if (rc != 0)
                 {
                     _objectCompletionSources.Remove(referenceNumber);
@@ -602,8 +601,8 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 _objectCompletionSources.Add(referenceNumber, tcs);
-                Functions.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
-                var rc = Functions.vp_object_get(_instance, id);
+                Native.vp_int_set(_instance, IntegerAttribute.ReferenceNumber, referenceNumber);
+                var rc = Native.vp_object_get(_instance, id);
                 if (rc != 0)
                 {
                     _objectCompletionSources.Remove(referenceNumber);
@@ -623,7 +622,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_teleport_avatar(_instance, targetSession, world, (float)x, (float)y,
+                CheckReasonCode(Native.vp_teleport_avatar(_instance, targetSession, world, (float)x, (float)y,
                                                              (float)z, (float)yaw, (float)pitch));
             }
         }
@@ -676,7 +675,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_user_attributes_by_id(_instance, userId));
+                CheckReasonCode(Native.vp_user_attributes_by_id(_instance, userId));
             }
         }
 
@@ -685,7 +684,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_user_attributes_by_name(_instance, userName));
+                CheckReasonCode(Native.vp_user_attributes_by_name(_instance, userName));
             }
         }
 
@@ -698,12 +697,12 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                Functions.vp_double_set(_instance, FloatAttribute.MyX, x);
-                Functions.vp_double_set(_instance, FloatAttribute.MyY, y);
-                Functions.vp_double_set(_instance, FloatAttribute.MyZ, z);
-                Functions.vp_double_set(_instance, FloatAttribute.MyYaw, yaw);
-                Functions.vp_double_set(_instance, FloatAttribute.MyPitch, pitch);
-                CheckReasonCode(Functions.vp_state_change(_instance));
+                Native.vp_double_set(_instance, FloatAttribute.MyX, x);
+                Native.vp_double_set(_instance, FloatAttribute.MyY, y);
+                Native.vp_double_set(_instance, FloatAttribute.MyZ, z);
+                Native.vp_double_set(_instance, FloatAttribute.MyYaw, yaw);
+                Native.vp_double_set(_instance, FloatAttribute.MyPitch, pitch);
+                CheckReasonCode(Native.vp_state_change(_instance));
 
             }
         }
@@ -722,7 +721,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_avatar_click(_instance, session));
+                CheckReasonCode(Native.vp_avatar_click(_instance, session));
             }
         }
 
@@ -739,7 +738,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_say(_instance, message));
+                CheckReasonCode(Native.vp_say(_instance, message));
             }
         }
 
@@ -747,7 +746,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_say(_instance, string.Format(format, arg)));
+                CheckReasonCode(Native.vp_say(_instance, string.Format(format, arg)));
             }
         }
 
@@ -755,7 +754,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_console_message(_instance, targetSession, name, message, (int)effects, red, green, blue));
+                CheckReasonCode(Native.vp_console_message(_instance, targetSession, name, message, (int)effects, red, green, blue));
             }
         }
 
@@ -807,7 +806,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_url_send(_instance, avatarSession, url, (int)UrlTarget.UrlTargetOverlay));
+                CheckReasonCode(Native.vp_url_send(_instance, avatarSession, url, (int)UrlTarget.UrlTargetOverlay));
             }
         }
 
@@ -830,7 +829,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_url_send(_instance, avatarSession, url, (int)UrlTarget.UrlTargetBrowser));
+                CheckReasonCode(Native.vp_url_send(_instance, avatarSession, url, (int)UrlTarget.UrlTargetBrowser));
             }
         }
 
@@ -846,7 +845,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_join(_instance, avatar.UserId));
+                CheckReasonCode(Native.vp_join(_instance, avatar.UserId));
             }
         }
 
@@ -854,7 +853,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_join(_instance, userId));
+                CheckReasonCode(Native.vp_join(_instance, userId));
             }
         }
 
@@ -863,7 +862,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_join_accept(_instance, requestId, world,location.X,location.Y,location.Z,yaw,pitch));
+                CheckReasonCode(Native.vp_join_accept(_instance, requestId, world,location.X,location.Y,location.Z,yaw,pitch));
             }
         }
 
@@ -871,7 +870,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_join_accept(_instance, requestId, world, x, y, z, yaw, pitch));
+                CheckReasonCode(Native.vp_join_accept(_instance, requestId, world, x, y, z, yaw, pitch));
             }
         }
 
@@ -879,7 +878,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_join_decline(_instance, requestId));
+                CheckReasonCode(Native.vp_join_decline(_instance, requestId));
             }
         }
 
@@ -891,7 +890,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, permission, userId, enable));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, permission, userId, enable));
             }
         }
 
@@ -899,7 +898,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission),avatar.UserId,1));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission),avatar.UserId,1));
             }
         }
 
@@ -907,7 +906,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), userId, 1));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), userId, 1));
             }
         }
 
@@ -915,7 +914,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.UserId, 0));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.UserId, 0));
             }
         }
 
@@ -923,7 +922,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), userId, 0));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), userId, 0));
             }
         }
 
@@ -931,7 +930,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_session_set(_instance, permission, sessionId, enable));
+                CheckReasonCode(Native.vp_world_permission_session_set(_instance, permission, sessionId, enable));
             }
         }
 
@@ -939,7 +938,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.Session, 1));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.Session, 1));
             }
         }
 
@@ -947,7 +946,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), session, 1));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), session, 1));
             }
         }
 
@@ -956,7 +955,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.Session, 0));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), avatar.Session, 0));
             }
         }
 
@@ -964,7 +963,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), session, 0));
+                CheckReasonCode(Native.vp_world_permission_user_set(_instance, Enum.GetName(typeof(WorldPermissions), permission), session, 0));
             }
         }
 
@@ -976,7 +975,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_setting_set(_instance, setting, value, toAvatar.Session));
+                CheckReasonCode(Native.vp_world_setting_set(_instance, setting, value, toAvatar.Session));
             }
         }
 
@@ -984,7 +983,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_world_setting_set(_instance, setting, value, toSession));
+                CheckReasonCode(Native.vp_world_setting_set(_instance, setting, value, toSession));
             }
         }
 
@@ -1004,13 +1003,13 @@ namespace VpNet.ManagedApi
         private void SetNativeEvent(NativeEvent eventType, EventDelegate eventFunction)
         {
             _nativeEvents[eventType] = eventFunction;
-            Functions.vp_event_set(_instance, (int)eventType, eventFunction);
+            Native.vp_event_set(_instance, (int)eventType, eventFunction);
         }
 
         private void SetNativeCallback(NativeCallback callbackType, CallbackDelegate callbackFunction)
         {
             _nativeCallbacks[callbackType] = callbackFunction;
-            Functions.vp_callback_set(_instance, (int)callbackType, callbackFunction);
+            Native.vp_callback_set(_instance, (int)callbackType, callbackFunction);
         }
 
         //public delegate void Event(T sender);
@@ -1089,7 +1088,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                SetCompletionResult(reference, rc, Functions.vp_int(sender, IntegerAttribute.ObjectId));
+                SetCompletionResult(reference, rc, Native.vp_int(sender, IntegerAttribute.ObjectId));
             }
         }
 
@@ -1123,7 +1122,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                SetCompletionResult(reference, rc, Functions.vp_int(sender, IntegerAttribute.ObjectId));
+                SetCompletionResult(reference, rc, Native.vp_int(sender, IntegerAttribute.ObjectId));
             }
         }
         #endregion
@@ -1139,12 +1138,12 @@ namespace VpNet.ManagedApi
             {
                 att = new UserAttributes()
                           {
-                              Email = Functions.vp_string(sender, StringAttribute.UserEmail),
-                              Id = Functions.vp_int(sender, IntegerAttribute.UserId),
-                              LastLogin = DateTimeOffset.FromUnixTimeSeconds(Functions.vp_int(sender, IntegerAttribute.UserLastLogin)).UtcDateTime,
-                              Name = Functions.vp_string(sender, StringAttribute.UserName),
-                              OnlineTime = new TimeSpan(0, 0, 0, Functions.vp_int(sender, IntegerAttribute.UserOnlineTime)),
-                              RegistrationDate = DateTimeOffset.FromUnixTimeSeconds(Functions.vp_int(sender, IntegerAttribute.UserRegistrationTime)).UtcDateTime
+                              Email = Native.vp_string(sender, StringAttribute.UserEmail),
+                              Id = Native.vp_int(sender, IntegerAttribute.UserId),
+                              LastLogin = DateTimeOffset.FromUnixTimeSeconds(Native.vp_int(sender, IntegerAttribute.UserLastLogin)).UtcDateTime,
+                              Name = Native.vp_string(sender, StringAttribute.UserName),
+                              OnlineTime = new TimeSpan(0, 0, 0, Native.vp_int(sender, IntegerAttribute.UserOnlineTime)),
+                              RegistrationDate = DateTimeOffset.FromUnixTimeSeconds(Native.vp_int(sender, IntegerAttribute.UserRegistrationTime)).UtcDateTime
                           };
             }
             OnUserAttributes(this,new UserAttributesEventArgs(){UserAttributes = att});
@@ -1159,21 +1158,21 @@ namespace VpNet.ManagedApi
             {
                 teleport = new Teleport
                     {
-                        Avatar = GetAvatar(Functions.vp_int(sender, IntegerAttribute.AvatarSession)),
+                        Avatar = GetAvatar(Native.vp_int(sender, IntegerAttribute.AvatarSession)),
                         Position = new Vector3
                             {
-                                X = Functions.vp_double(sender, FloatAttribute.TeleportX),
-                                Y = Functions.vp_double(sender, FloatAttribute.TeleportY),
-                                Z = Functions.vp_double(sender, FloatAttribute.TeleportZ)
+                                X = Native.vp_double(sender, FloatAttribute.TeleportX),
+                                Y = Native.vp_double(sender, FloatAttribute.TeleportY),
+                                Z = Native.vp_double(sender, FloatAttribute.TeleportZ)
                             },
                         Rotation = new Vector3
                             {
-                                X = Functions.vp_double(sender, FloatAttribute.TeleportPitch),
-                                Y = Functions.vp_double(sender, FloatAttribute.TeleportYaw),
+                                X = Native.vp_double(sender, FloatAttribute.TeleportPitch),
+                                Y = Native.vp_double(sender, FloatAttribute.TeleportYaw),
                                 Z = 0 /* Roll not implemented yet */
                             },
                             // TODO: maintain user count and world state statistics.
-                        World = new World { Name = Functions.vp_string(sender, StringAttribute.TeleportWorld),State = WorldState.Unknown, UserCount=-1 }
+                        World = new World { Name = Native.vp_string(sender, StringAttribute.TeleportWorld),State = WorldState.Unknown, UserCount=-1 }
                     };
             }
             OnTeleport(this, new TeleportEventArgs() {Teleport = teleport});
@@ -1187,9 +1186,9 @@ namespace VpNet.ManagedApi
             {
                 var friend = new Friend
                 {
-                    UserId = Functions.vp_int(sender, IntegerAttribute.UserId),
-                    Name = Functions.vp_string(sender, StringAttribute.FriendName),
-                    Online = Functions.vp_int(sender, IntegerAttribute.FriendOnline) == 1
+                    UserId = Native.vp_int(sender, IntegerAttribute.UserId),
+                    Name = Native.vp_string(sender, StringAttribute.FriendName),
+                    Online = Native.vp_int(sender, IntegerAttribute.FriendOnline) == 1
                 };
                 OnFriendsGetCallback(this, new FriendsGetCallbackEventArgs { Friend = friend });
             }
@@ -1211,24 +1210,24 @@ namespace VpNet.ManagedApi
             ChatMessageEventArgs data;
             lock (this)
             {
-                if (!_avatars.ContainsKey(Functions.vp_int(sender, IntegerAttribute.AvatarSession)))
+                if (!_avatars.ContainsKey(Native.vp_int(sender, IntegerAttribute.AvatarSession)))
                 {
                     var avatar = new Avatar
                         {
-                            Name = Functions.vp_string(sender, StringAttribute.AvatarName),
-                            Session = Functions.vp_int(sender, IntegerAttribute.AvatarSession)
+                            Name = Native.vp_string(sender, StringAttribute.AvatarName),
+                            Session = Native.vp_int(sender, IntegerAttribute.AvatarSession)
                         };
                     _avatars.Add(avatar.Session, avatar);
                 }
                 data = new ChatMessageEventArgs
                 {
-                    Avatar = _avatars[Functions.vp_int(sender, IntegerAttribute.AvatarSession)],
+                    Avatar = _avatars[Native.vp_int(sender, IntegerAttribute.AvatarSession)],
                     ChatMessage = new ChatMessage()
                     {
-                        Type = (ChatMessageTypes)Functions.vp_int(sender, IntegerAttribute.ChatType),
-                        Message = Functions.vp_string(sender, StringAttribute.ChatMessage),
-                        Name = Functions.vp_string(sender, StringAttribute.AvatarName),
-                        TextEffectTypes = (TextEffectTypes)Functions.vp_int(sender, IntegerAttribute.ChatEffects)
+                        Type = (ChatMessageTypes)Native.vp_int(sender, IntegerAttribute.ChatType),
+                        Message = Native.vp_string(sender, StringAttribute.ChatMessage),
+                        Name = Native.vp_string(sender, StringAttribute.AvatarName),
+                        TextEffectTypes = (TextEffectTypes)Native.vp_int(sender, IntegerAttribute.ChatEffects)
                     }
                 };
                 OperatingSystem os = Environment.OSVersion;
@@ -1238,9 +1237,9 @@ namespace VpNet.ManagedApi
                 {
                     data.ChatMessage.Color = new Color
                     {
-                        R = (byte)Functions.vp_int(sender, IntegerAttribute.ChatRolorRed),
-                        G = (byte)Functions.vp_int(sender, IntegerAttribute.ChatColorGreen),
-                        B = (byte)Functions.vp_int(sender, IntegerAttribute.ChatColorBlue)
+                        R = (byte)Native.vp_int(sender, IntegerAttribute.ChatRolorRed),
+                        G = (byte)Native.vp_int(sender, IntegerAttribute.ChatColorGreen),
+                        B = (byte)Native.vp_int(sender, IntegerAttribute.ChatColorBlue)
                     };
                 }
                 else
@@ -1263,24 +1262,24 @@ namespace VpNet.ManagedApi
             {
                 data = new Avatar()
                 {
-                    UserId = Functions.vp_int(sender, IntegerAttribute.UserId),
-                    Name = Functions.vp_string(sender, StringAttribute.AvatarName),
-                    Session = Functions.vp_int(sender, IntegerAttribute.AvatarSession),
-                    AvatarType = Functions.vp_int(sender, IntegerAttribute.AvatarType),
+                    UserId = Native.vp_int(sender, IntegerAttribute.UserId),
+                    Name = Native.vp_string(sender, StringAttribute.AvatarName),
+                    Session = Native.vp_int(sender, IntegerAttribute.AvatarSession),
+                    AvatarType = Native.vp_int(sender, IntegerAttribute.AvatarType),
                     Position = new Vector3
                     {
-                        X = Functions.vp_double(sender, FloatAttribute.AvatarX),
-                        Y = Functions.vp_double(sender, FloatAttribute.AvatarY),
-                        Z = Functions.vp_double(sender, FloatAttribute.AvatarZ)
+                        X = Native.vp_double(sender, FloatAttribute.AvatarX),
+                        Y = Native.vp_double(sender, FloatAttribute.AvatarY),
+                        Z = Native.vp_double(sender, FloatAttribute.AvatarZ)
                     },
                     Rotation = new Vector3
                     {
-                        X = Functions.vp_double(sender, FloatAttribute.AvatarPitch),
-                        Y = Functions.vp_double(sender, FloatAttribute.AvatarYaw),
+                        X = Native.vp_double(sender, FloatAttribute.AvatarPitch),
+                        Y = Native.vp_double(sender, FloatAttribute.AvatarYaw),
                         Z = 0 /* roll currently not supported*/
                     },
-                    ApplicationName = Functions.vp_string(sender, StringAttribute.AvatarApplicationName),
-                    ApplicationVersion = Functions.vp_string(sender, StringAttribute.AvatarApplicationVersion)
+                    ApplicationName = Native.vp_string(sender, StringAttribute.AvatarApplicationName),
+                    ApplicationVersion = Native.vp_string(sender, StringAttribute.AvatarApplicationVersion)
                 };
                 if (!_avatars.ContainsKey(data.Session))
                     _avatars.Add(data.Session, data);
@@ -1300,20 +1299,20 @@ namespace VpNet.ManagedApi
             {
                 data = new Avatar()
                 {
-                    UserId = _avatars[Functions.vp_int(sender, IntegerAttribute.AvatarSession)].UserId,
-                    Name = Functions.vp_string(sender, StringAttribute.AvatarName),
-                    Session = Functions.vp_int(sender, IntegerAttribute.AvatarSession),
-                    AvatarType = Functions.vp_int(sender, IntegerAttribute.AvatarType),
+                    UserId = _avatars[Native.vp_int(sender, IntegerAttribute.AvatarSession)].UserId,
+                    Name = Native.vp_string(sender, StringAttribute.AvatarName),
+                    Session = Native.vp_int(sender, IntegerAttribute.AvatarSession),
+                    AvatarType = Native.vp_int(sender, IntegerAttribute.AvatarType),
                     Position = new Vector3
                     {
-                        X = Functions.vp_double(sender, FloatAttribute.AvatarX),
-                        Y = Functions.vp_double(sender, FloatAttribute.AvatarY),
-                        Z = Functions.vp_double(sender, FloatAttribute.AvatarZ)
+                        X = Native.vp_double(sender, FloatAttribute.AvatarX),
+                        Y = Native.vp_double(sender, FloatAttribute.AvatarY),
+                        Z = Native.vp_double(sender, FloatAttribute.AvatarZ)
                     },
                     Rotation = new Vector3
                     {
-                        X = Functions.vp_double(sender, FloatAttribute.AvatarPitch),
-                        Y = Functions.vp_double(sender, FloatAttribute.AvatarYaw),
+                        X = Native.vp_double(sender, FloatAttribute.AvatarPitch),
+                        Y = Native.vp_double(sender, FloatAttribute.AvatarYaw),
                         Z = 0 /* roll currently not supported*/
                     }
                 };
@@ -1340,7 +1339,7 @@ namespace VpNet.ManagedApi
             {
                 try
                 {
-                    data = _avatars[Functions.vp_int(sender, IntegerAttribute.AvatarSession)];
+                    data = _avatars[Native.vp_int(sender, IntegerAttribute.AvatarSession)];
                     _avatars.Remove(data.Session);
                     if (OnAvatarLeave == null) return;
                     OnAvatarLeave(this, new AvatarLeaveEventArgs { Avatar = data });
@@ -1357,20 +1356,20 @@ namespace VpNet.ManagedApi
             if (OnAvatarClick == null) return;
             lock (this)
             {
-                var clickedAvatar = Functions.vp_int(sender, IntegerAttribute.ClickedSession);
+                var clickedAvatar = Native.vp_int(sender, IntegerAttribute.ClickedSession);
                 if (clickedAvatar == 0)
-                    clickedAvatar = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
+                    clickedAvatar = Native.vp_int(sender, IntegerAttribute.AvatarSession);
 
                 OnAvatarClick(this,
                     new AvatarClickEventArgs
                     {
-                        Avatar = GetAvatar(Functions.vp_int(sender, IntegerAttribute.AvatarSession)),
+                        Avatar = GetAvatar(Native.vp_int(sender, IntegerAttribute.AvatarSession)),
                         ClickedAvatar = GetAvatar(clickedAvatar),
                         WorldHit = new Vector3
                         {
-                            X = Functions.vp_double(sender, FloatAttribute.ClickHitX),
-                            Y = Functions.vp_double(sender, FloatAttribute.ClickHitY),
-                            Z = Functions.vp_double(sender, FloatAttribute.ClickHitZ)
+                            X = Native.vp_double(sender, FloatAttribute.ClickHitX),
+                            Y = Native.vp_double(sender, FloatAttribute.ClickHitY),
+                            Z = Native.vp_double(sender, FloatAttribute.ClickHitZ)
                         }
                     });
             }
@@ -1384,13 +1383,13 @@ namespace VpNet.ManagedApi
             Vector3 world;
             lock (this)
             {
-                session = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
-                objectId = Functions.vp_int(sender, IntegerAttribute.ObjectId);
+                session = Native.vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = Native.vp_int(sender, IntegerAttribute.ObjectId);
                 world = new Vector3
                     {
-                        X = Functions.vp_double(sender, FloatAttribute.ClickHitX),
-                        Y = Functions.vp_double(sender, FloatAttribute.ClickHitY),
-                        Z = Functions.vp_double(sender, FloatAttribute.ClickHitZ)
+                        X = Native.vp_double(sender, FloatAttribute.ClickHitX),
+                        Y = Native.vp_double(sender, FloatAttribute.ClickHitY),
+                        Z = Native.vp_double(sender, FloatAttribute.ClickHitZ)
                     };
             }
 
@@ -1406,8 +1405,8 @@ namespace VpNet.ManagedApi
             int objectId;
             lock (this)
             {
-                session = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
-                objectId = Functions.vp_int(sender, IntegerAttribute.ObjectId);
+                session = Native.vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = Native.vp_int(sender, IntegerAttribute.ObjectId);
             }
 
             OnObjectBump(this,
@@ -1421,8 +1420,8 @@ namespace VpNet.ManagedApi
             int objectId;
             lock (this)
             {
-                session = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
-                objectId = Functions.vp_int(sender, IntegerAttribute.ObjectId);
+                session = Native.vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = Native.vp_int(sender, IntegerAttribute.ObjectId);
             }
 
             OnObjectBump(this,
@@ -1436,8 +1435,8 @@ namespace VpNet.ManagedApi
             int objectId;
             lock (this)
             {
-                session = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
-                objectId = Functions.vp_int(sender, IntegerAttribute.ObjectId);
+                session = Native.vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = Native.vp_int(sender, IntegerAttribute.ObjectId);
             }
             OnObjectDelete(this, new ObjectDeleteArgs { Avatar = GetAvatar(session), VpObject = new VpObject { Id = objectId } });
         }
@@ -1449,7 +1448,7 @@ namespace VpNet.ManagedApi
             int session;
             lock (this)
             {
-                session = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
+                session = Native.vp_int(sender, IntegerAttribute.AvatarSession);
                 GetVpObject(sender, out vpObject);
             }
             if (session == 0 && OnQueryCellResult != null)
@@ -1509,29 +1508,29 @@ namespace VpNet.ManagedApi
         {
             vpObject = new VpObject
             {
-                Action = Functions.vp_string(sender, StringAttribute.ObjectAction),
-                Description = Functions.vp_string(sender, StringAttribute.ObjectDescription),
-                Id = Functions.vp_int(sender, IntegerAttribute.ObjectId),
-                Model = Functions.vp_string(sender, StringAttribute.ObjectModel),
-                Data = Functions.GetData(sender, DataAttribute.ObjectData),
+                Action = Native.vp_string(sender, StringAttribute.ObjectAction),
+                Description = Native.vp_string(sender, StringAttribute.ObjectDescription),
+                Id = Native.vp_int(sender, IntegerAttribute.ObjectId),
+                Model = Native.vp_string(sender, StringAttribute.ObjectModel),
+                Data = Native.GetData(sender, DataAttribute.ObjectData),
 
                 Rotation = new Vector3
                 {
-                    X = Functions.vp_double(sender, FloatAttribute.ObjectRotationX),
-                    Y = Functions.vp_double(sender, FloatAttribute.ObjectRotationY),
-                    Z = Functions.vp_double(sender, FloatAttribute.ObjectRotationZ)
+                    X = Native.vp_double(sender, FloatAttribute.ObjectRotationX),
+                    Y = Native.vp_double(sender, FloatAttribute.ObjectRotationY),
+                    Z = Native.vp_double(sender, FloatAttribute.ObjectRotationZ)
                 },
 
-                Time = DateTimeOffset.FromUnixTimeSeconds(Functions.vp_int(sender, IntegerAttribute.ObjectTime)).UtcDateTime,
-                ObjectType = Functions.vp_int(sender, IntegerAttribute.ObjectType),
-                Owner = Functions.vp_int(sender, IntegerAttribute.ObjectUserId),
+                Time = DateTimeOffset.FromUnixTimeSeconds(Native.vp_int(sender, IntegerAttribute.ObjectTime)).UtcDateTime,
+                ObjectType = Native.vp_int(sender, IntegerAttribute.ObjectType),
+                Owner = Native.vp_int(sender, IntegerAttribute.ObjectUserId),
                 Position = new Vector3
                 {
-                    X = Functions.vp_double(sender, FloatAttribute.ObjectX),
-                    Y = Functions.vp_double(sender, FloatAttribute.ObjectY),
-                    Z = Functions.vp_double(sender, FloatAttribute.ObjectZ)
+                    X = Native.vp_double(sender, FloatAttribute.ObjectX),
+                    Y = Native.vp_double(sender, FloatAttribute.ObjectY),
+                    Z = Native.vp_double(sender, FloatAttribute.ObjectZ)
                 },
-                Angle = Functions.vp_double(sender, FloatAttribute.ObjectRotationAngle)
+                Angle = Native.vp_double(sender, FloatAttribute.ObjectRotationAngle)
             };
         }
 
@@ -1543,7 +1542,7 @@ namespace VpNet.ManagedApi
             lock (this)
             {
                 GetVpObject(sender,out vpObject);
-                sessionId = Functions.vp_int(sender, IntegerAttribute.AvatarSession);
+                sessionId = Native.vp_int(sender, IntegerAttribute.AvatarSession);
             }
             OnObjectChange(this, new ObjectChangeArgs { Avatar = GetAvatar(sessionId), VpObject = vpObject });
         }
@@ -1555,8 +1554,8 @@ namespace VpNet.ManagedApi
             int z;
             lock (this)
             {
-                x = Functions.vp_int(sender, IntegerAttribute.CellX);
-                z = Functions.vp_int(sender, IntegerAttribute.CellZ);
+                x = Native.vp_int(sender, IntegerAttribute.CellX);
+                z = Native.vp_int(sender, IntegerAttribute.CellZ);
             }
             OnQueryCellEnd(this, new QueryCellEndArgs { Cell = new Cell { X = x, Z = z } });
         }
@@ -1569,12 +1568,12 @@ namespace VpNet.ManagedApi
             IWorld data;
             lock (this)
             {
-                string worldName = Functions.vp_string(_instance, StringAttribute.WorldName);
+                string worldName = Native.vp_string(_instance, StringAttribute.WorldName);
                 data = new World()
                 {
                     Name = worldName,
-                    State = (WorldState)Functions.vp_int(_instance, IntegerAttribute.WorldState),
-                    UserCount = Functions.vp_int(_instance, IntegerAttribute.WorldUsers)
+                    State = (WorldState)Native.vp_int(_instance, IntegerAttribute.WorldState),
+                    UserCount = Native.vp_int(_instance, IntegerAttribute.WorldUsers)
                 };
             }
             if (_worlds.ContainsKey(data.Name))
@@ -1590,8 +1589,8 @@ namespace VpNet.ManagedApi
                 _worlds.Add(Configuration.World.Name,Configuration.World);
             }
             var world = _worlds[Configuration.World.Name];
-            var key = Functions.vp_string(instance, StringAttribute.WorldSettingKey);
-            var value = Functions.vp_string(instance, StringAttribute.WorldSettingValue);
+            var key = Native.vp_string(instance, StringAttribute.WorldSettingKey);
+            var value = Native.vp_string(instance, StringAttribute.WorldSettingValue);
             world.RawAttributes[key] = value;
         }
 
@@ -1620,9 +1619,9 @@ namespace VpNet.ManagedApi
         {
             if (OnJoin == null) return;
             OnJoin(this, new JoinEventArgs {
-                UserId = Functions.vp_int(sender, IntegerAttribute.UserId),
-                Id = Functions.vp_int(sender, IntegerAttribute.JoinId),
-                Name = Functions.vp_string(sender, StringAttribute.JoinName)
+                UserId = Native.vp_int(sender, IntegerAttribute.UserId),
+                Id = Native.vp_int(sender, IntegerAttribute.JoinId),
+                Name = Native.vp_string(sender, StringAttribute.JoinName)
             });
         }
 
@@ -1660,7 +1659,7 @@ namespace VpNet.ManagedApi
         {
             if (_instance != IntPtr.Zero)
             {
-                Functions.vp_destroy(_instance);
+                Native.vp_destroy(_instance);
             }
 
             if (instanceHandle != null)
@@ -1679,7 +1678,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_friends_get(_instance));
+                CheckReasonCode(Native.vp_friends_get(_instance));
             }
         }
 
@@ -1687,7 +1686,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_friend_add_by_name(_instance, friend.Name));
+                CheckReasonCode(Native.vp_friend_add_by_name(_instance, friend.Name));
             }
         }
 
@@ -1695,7 +1694,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_friend_add_by_name(_instance, name));
+                CheckReasonCode(Native.vp_friend_add_by_name(_instance, name));
             }
         }
 
@@ -1703,7 +1702,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_friend_delete(_instance, friendId));
+                CheckReasonCode(Native.vp_friend_delete(_instance, friendId));
             }
         }
 
@@ -1711,7 +1710,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_friend_delete(_instance, friend.UserId));
+                CheckReasonCode(Native.vp_friend_delete(_instance, friend.UserId));
             }
         }
 
@@ -1723,7 +1722,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_terrain_query(_instance, tileX, tileZ, nodes));
+                CheckReasonCode(Native.vp_terrain_query(_instance, tileX, tileZ, nodes));
             }
         }
 
@@ -1731,7 +1730,7 @@ namespace VpNet.ManagedApi
         {
             lock (this)
             {
-                CheckReasonCode(Functions.vp_terrain_node_set(_instance, tileX, tileZ, nodeX, nodeZ, cells));
+                CheckReasonCode(Native.vp_terrain_node_set(_instance, tileX, tileZ, nodeX, nodeZ, cells));
             }
         }
 

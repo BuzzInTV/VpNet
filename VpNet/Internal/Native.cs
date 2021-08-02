@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using VpNet.Internal;
+using VpNet.NativeApi;
 
-namespace VpNet.NativeApi
+namespace VpNet.Internal
 {
-    internal class Functions
+    internal static class Native
     {
         [DllImport("vpsdk", CallingConvention = CallingConvention.Cdecl)]
         public static extern int vp_init(int build);

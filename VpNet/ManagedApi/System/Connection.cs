@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
+using VpNet.Internal;
 using VpNet.NativeApi;
 
 namespace VpNet
@@ -31,7 +32,7 @@ namespace VpNet
             {
                 if (vpConnection != IntPtr.Zero)
                 {
-                    Functions.vp_net_notify(vpConnection, (int)notification, rc);
+                    Native.vp_net_notify(vpConnection, (int)notification, rc);
                 }
             }
         }

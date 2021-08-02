@@ -1,5 +1,6 @@
 using System;
 using VpNet.Interfaces;
+using VpNet.Internal;
 using VpNet.NativeApi;
 
 namespace VpNet.Abstract
@@ -25,10 +26,10 @@ namespace VpNet.Abstract
         /// </summary>
         protected BaseTerrainNode(IntPtr instanceHandle)
         {
-            X = Functions.vp_int(instanceHandle, IntegerAttribute.TerrainNodeX);
-            Z = Functions.vp_int(instanceHandle, IntegerAttribute.TerrainNodeZ);
-            Revision = Functions.vp_int(instanceHandle, IntegerAttribute.TerrainNodeRevision);
-            var data = Functions.GetData(instanceHandle, DataAttribute.TerrainNodeData);
+            X = Native.vp_int(instanceHandle, IntegerAttribute.TerrainNodeX);
+            Z = Native.vp_int(instanceHandle, IntegerAttribute.TerrainNodeZ);
+            Revision = Native.vp_int(instanceHandle, IntegerAttribute.TerrainNodeRevision);
+            var data = Native.GetData(instanceHandle, DataAttribute.TerrainNodeData);
             Cells    = DataConverters.NodeDataTo2DArray<TTerrainCell>(data);
         }
 

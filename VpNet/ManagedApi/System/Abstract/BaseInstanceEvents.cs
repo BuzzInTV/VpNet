@@ -1,6 +1,4 @@
 using System;
-using VpNet.Interfaces;
-using VpNet.NativeApi;
 
 namespace VpNet.Abstract
 {
