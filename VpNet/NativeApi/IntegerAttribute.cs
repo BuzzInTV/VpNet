@@ -46,6 +46,7 @@ namespace VpNet.NativeApi
         CellStatus,
         JoinId,
         InviteId,
-        InviteUserId
+        InviteUserId,
+        WorldSize
     }
 }
