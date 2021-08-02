@@ -19,6 +19,7 @@
         WorldPermissionUserSet,
         WorldPermissionSessionSet,
         WorldSettingSet,
-        Invite
+        Invite,
+        WorldList
     }
 }
