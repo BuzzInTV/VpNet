@@ -1,6 +1,6 @@
-﻿namespace VpNet.NativeApi
+﻿namespace VpNet.Internal
 {
-    internal enum Callbacks
+    internal enum NativeCallback
     {
         ObjectAdd,
         ObjectChange,
