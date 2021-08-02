@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Xml.Serialization;
 using VpNet.Interfaces;
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using VpNet.Interfaces;
 
 namespace VpNet.Abstract

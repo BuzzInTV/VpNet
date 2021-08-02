@@ -1,4 +1,6 @@
-﻿namespace VpNet.Interfaces
+﻿using System.Numerics;
+
+namespace VpNet.Interfaces
 {
     /// <summary>
     /// Teleport templated interface specifications.
