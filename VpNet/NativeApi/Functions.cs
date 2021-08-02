@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using VpNet.Internal;
 
 namespace VpNet.NativeApi
 {
@@ -40,10 +41,10 @@ namespace VpNet.NativeApi
             [MarshalAs(UnmanagedType.CustomMarshaler, MarshalTypeRef = typeof(Utf8StringToNative))] string message);
         
         [DllImport("vpsdk", CallingConvention=CallingConvention.Cdecl)]
-        internal static extern int vp_event_set(IntPtr instance, int eventName, [MarshalAs(UnmanagedType.FunctionPtr)]EventDelegate eventFunction);
+        internal static extern int vp_event_set(IntPtr instance, int eventName, [MarshalAs(UnmanagedType.FunctionPtr)]NativeEventHandler eventFunction);
 
         [DllImport("vpsdk", CallingConvention=CallingConvention.Cdecl)]
-        internal static extern int vp_callback_set(IntPtr instance, int callbackname, [MarshalAs(UnmanagedType.FunctionPtr)]CallbackDelegate callbackFunction);
+        internal static extern int vp_callback_set(IntPtr instance, int callbackname, [MarshalAs(UnmanagedType.FunctionPtr)]NativeCallbackHandler callbackFunction);
 
         [DllImport("vpsdk", CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr vp_user_data(IntPtr instance);
