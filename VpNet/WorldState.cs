@@ -1,23 +1,22 @@
-using System;
-
 namespace VpNet
 {
     /// <summary>
-    /// World state types.
+    /// An enumeration of world states.
     /// </summary>
-    [Serializable]
     public enum WorldState
     {
         /// <summary>
-        /// World Server is online
+        ///     The world server is online.
         /// </summary>
         Online,
+
         /// <summary>
-        /// World Server is stopped
+        /// The world server is stopped.
         /// </summary>
         Stopped,
+
         /// <summary>
-        /// world Server is in an Unknown status
+        ///     The world server is in an unknown state.
         /// </summary>
         Unknown
     }
