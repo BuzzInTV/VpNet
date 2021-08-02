@@ -1,7 +1,7 @@
 namespace VpNet
 {
     /// <summary>
-    /// An enumeration of world states.
+    ///     An enumeration of world states.
     /// </summary>
     public enum WorldState
     {
@@ -11,7 +11,7 @@ namespace VpNet
         Online,
 
         /// <summary>
-        /// The world server is stopped.
+        ///     The world server is stopped.
         /// </summary>
         Stopped,
 
