@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <RootNamespace>VpNet</RootNamespace>
@@ -17,12 +17,23 @@
         <PackageProjectUrl>https://github.com/VirtualParadise/VpNet</PackageProjectUrl>
         <PackageIconUrl>http://edwin-share.virtualparadise.org/2017/05/vpsdkbutton.png</PackageIconUrl>
     </PropertyGroup>
+
     <ItemGroup>
         <PackageReference Include="GitVersionTask" Version="5.1.1">
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-    </ItemGroup>
     <ItemGroup>
-        <Folder Include="Properties\" />
+        <EmbeddedResource Update="ExceptionMessages.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>ExceptionMessages.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="ExceptionMessages.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>ExceptionMessages.resx</DependentUpon>
+        </Compile>
     </ItemGroup>
 </Project>
