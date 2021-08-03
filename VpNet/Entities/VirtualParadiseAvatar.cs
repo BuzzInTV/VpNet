@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Threading.Tasks;
+using VpNet.Extensions;
 using VpNet.Internal;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
@@ -209,9 +210,7 @@ namespace VpNet.Entities
             if (this == _client.CurrentAvatar)
                 return Task.FromException<InvalidOperationException>(CurrentAvatarException);
 
-            byte r = color?.R ?? 0;
-            byte g = color?.G ?? 0;
-            byte b = color?.B ?? 0;
+            (byte r, byte g, byte b) = color ?? Color.Black;
 
             lock (_client.Lock)
             {
