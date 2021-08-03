@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Numerics;
 using System.Threading.Tasks;
 using VpNet.Extensions;
 using VpNet.Internal;
@@ -289,8 +290,6 @@ namespace VpNet.Entities
             }
 
             IntPtr handle = _client.NativeInstanceHandle;
-            (double x, double y, double z) = location.Position;
-            (double pitch, double yaw, double _) = location.Rotation;
 
             if (this == _client.CurrentAvatar)
             {
@@ -302,6 +301,9 @@ namespace VpNet.Entities
                 // state change self
                 lock (_client.Lock)
                 {
+                    (double x, double y, double z) = location.Position;
+                    (double pitch, double yaw, double _) = location.Rotation;
+
                     vp_double_set(handle, FloatAttribute.MyX, x);
                     vp_double_set(handle, FloatAttribute.MyY, y);
                     vp_double_set(handle, FloatAttribute.MyZ, z);
@@ -317,10 +319,10 @@ namespace VpNet.Entities
             {
                 lock (_client.Lock)
                 {
-                    var reason = (ReasonCode) vp_teleport_avatar(handle, Session, worldName,
-                        (float) x, (float) y, (float) z,
-                        (float) yaw, (float) pitch);
+                    (float x, float y, float z) = (Vector3) location.Position;
+                    (float pitch, float yaw, float _) = (Vector3) location.Rotation;
 
+                    var reason = (ReasonCode) vp_teleport_avatar(handle, Session, worldName, x, y, z, yaw, pitch);
                     if (reason == ReasonCode.NotInWorld)
                         ThrowHelper.ThrowNotInWorldException();
                 }
