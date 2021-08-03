@@ -1,38 +1,42 @@
 ﻿using System;
+using System.Threading.Tasks;
+using VpNet.EventData;
 
 namespace VpNet.IntegrationTests
 {
-    class Program
+    internal static class Program
     {
-        static ManagedApi.Instance instance;
+        private static VirtualParadiseClient s_client;
 
-        static void Main(string[] args)
+        private static async Task Main()
         {
             Console.WriteLine("Hello World!");
-            instance = new ManagedApi.Instance();
-            MainAsync(args);
-            instance.OnAvatarEnter += Instance_OnAvatarEnter;
-            instance.OnAvatarLeave += Instance_OnAvatarLeave;
+            
+            s_client = new VirtualParadiseClient(new VirtualParadiseConfiguration
+            {
+                Username = "<<username>>",
+                Password = "<<password>>",
+                BotName = "<<botname>>"
+            });
+            
+            s_client.AvatarJoined += ClientOnAvatarJoined;
+            s_client.AvatarLeft += ClientOnAvatarLeft;
+
+            await s_client.ConnectAsync();
+            await s_client.LoginAsync();
+            await s_client.EnterAsync("<<world name>>");
+
             Console.ReadKey();
-
         }
 
-        private static void Instance_OnAvatarLeave(ManagedApi.Instance sender, AvatarLeaveEventArgs args)
+        private static Task ClientOnAvatarJoined(VirtualParadiseClient sender, AvatarJoinedEventArgs args)
         {
-            sender.ConsoleMessage($"{args.Avatar.Name} has left {instance.Configuration.World.Name}");
+            return args.Avatar.SendConsoleMessageAsync("greetings", $"Welcome to {s_client.CurrentWorld.Name}, {args.Avatar.Name}.");
         }
 
-        private static void Instance_OnAvatarEnter(ManagedApi.Instance sender, AvatarEnterEventArgs args)
+        private static Task ClientOnAvatarLeft(VirtualParadiseClient sender, AvatarLeftEventArgs args)
         {
-            sender.ConsoleMessage(args.Avatar, "greetings", $"Welcome to {instance.Configuration.World.Name}, {args.Avatar.Name}.");
-        }
-
-        static async void MainAsync(string[] args)
-        {
-            await instance.ConnectAsync();
-            await instance.LoginAsync("<<your username here>>", "<<yourpassword>>", "<<yourbotname>>");
-            await instance.EnterAsync("<<world here>>");
-            instance.UpdateAvatar();
+            return sender.BroadcastConsoleMessageAsync($"{args.Avatar.Name} has left {s_client.CurrentWorld.Name}");
         }
     }
 }
