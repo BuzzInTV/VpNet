@@ -1,8 +1,14 @@
-﻿namespace VpNet.NativeApi
+﻿using VpNet.Entities;
+
+namespace VpNet.NativeApi
 {
     /// <summary>
     ///     An enumeration of URI targets.
     /// </summary>
+    /// <remarks>
+    ///     When used with <see cref="VirtualParadiseAvatar.SendUriAsync" />, <see cref="Overlay" /> indicates that that the URI
+    ///     will be displayed as a 2D overlay over the 3D world view. This currently uses CEF (Chromium Embedded Framework).
+    /// </remarks>
     public enum UriTarget
     {
         /// <summary>
@@ -11,7 +17,7 @@
         Browser,
 
         /// <summary>
-        ///     Opens the URi in an internal browser, displayed as a 2D overlay on top of the 3D world view.
+        ///     Opens the URI in an internal browser.
         /// </summary>
         Overlay
     }
