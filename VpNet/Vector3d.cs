@@ -237,6 +237,24 @@ namespace VpNet
         public static bool operator !=(Vector3d left, Vector3d right) => !left.Equals(right);
 
         /// <summary>
+        ///     Implicitly converts a <see cref="Vector3" /> to a new instance of <see cref="Vector3d" />, by implicitly
+        ///     converting the <see cref="Vector3.X" />, <see cref="Vector3.Y" /> and <see cref="Vector3.Z" /> fields to
+        ///     <see cref="double" />.
+        /// </summary>
+        /// <param name="vector">The vector to convert.</param>
+        /// <returns>The converted vector.</returns>
+        public static implicit operator Vector3d(Vector3 vector) => new(vector.X, vector.Y, vector.Z);
+
+        /// <summary>
+        ///     Explicit converts a <see cref="Vector3" /> to a new instance of <see cref="Vector3d" />, by explicitly
+        ///     converting the <see cref="Vector3.X" />, <see cref="Vector3.Y" /> and <see cref="Vector3.Z" /> fields to
+        ///     <see cref="float" />.
+        /// </summary>
+        /// <param name="vector">The vector to convert.</param>
+        /// <returns>The converted vector.</returns>
+        public static explicit operator Vector3(Vector3d vector) => new((float) vector.X, (float) vector.Y, (float) vector.Z);
+
+        /// <summary>
         ///     Returns a vector whose elements are the absolute values of each of the source vector's elements.
         /// </summary>
         /// <param name="value">The source vector.</param>
