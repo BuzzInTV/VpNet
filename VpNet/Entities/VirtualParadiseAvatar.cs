@@ -14,9 +14,6 @@ namespace VpNet.Entities
     /// </summary>
     public sealed class VirtualParadiseAvatar : ICloneable, IEquatable<VirtualParadiseAvatar>
     {
-        private static readonly InvalidOperationException CurrentAvatarException =
-            new("Unable to perform that action on the client's current avatar.");
-
         private readonly VirtualParadiseClient _client;
 
         internal VirtualParadiseAvatar(VirtualParadiseClient client, int session)
@@ -95,7 +92,7 @@ namespace VpNet.Entities
         public Task ClickAsync(Vector3d? clickPoint = null)
         {
             if (this == _client.CurrentAvatar)
-                return Task.FromException<InvalidOperationException>(CurrentAvatarException);
+                return ThrowHelper.CannotUseSelfExceptionAsync();
 
             clickPoint ??= Location.Position;
             (double x, double y, double z) = clickPoint.Value;
@@ -110,10 +107,7 @@ namespace VpNet.Entities
 
                 var reason = (ReasonCode) vp_avatar_click(handle, Session);
                 if (reason == ReasonCode.NotInWorld)
-                {
-                    var exception = new InvalidOperationException("Cannot click an avatar when the client is not in a world.");
-                    return Task.FromException<InvalidOperationException>(exception);
-                }
+                    return ThrowHelper.NotInWorldExceptionAsync();
             }
 
             return Task.CompletedTask;
@@ -204,11 +198,11 @@ namespace VpNet.Entities
         {
             name ??= string.Empty;
 
-            if (message is null!)
-                return Task.FromException<ArgumentNullException>(new ArgumentNullException(nameof(message)));
+            if (message is null)
+                return ThrowHelper.ArgumentNullExceptionAsync(nameof(message));
 
             if (this == _client.CurrentAvatar)
-                return Task.FromException<InvalidOperationException>(CurrentAvatarException);
+                return ThrowHelper.CannotUseSelfExceptionAsync();
 
             (byte r, byte g, byte b) = color ?? Color.Black;
 
@@ -219,13 +213,10 @@ namespace VpNet.Entities
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
-                        return Task.FromException<InvalidOperationException>(
-                            new InvalidOperationException(
-                                "Cannot send a console message when the client is not connected to a world."));
+                        return ThrowHelper.NotInWorldExceptionAsync();
 
                     case ReasonCode.StringTooLong:
-                        return Task.FromException<ArgumentException>(
-                            new ArgumentException("The message is too long to send.", nameof(message)));
+                        return ThrowHelper.StringTooLongExceptionAsync(nameof(message));
                 }
             }
 
@@ -242,10 +233,10 @@ namespace VpNet.Entities
         public Task SendUriAsync(Uri uri, UriTarget target = UriTarget.Browser)
         {
             if (this == _client.CurrentAvatar)
-                return Task.FromException<InvalidOperationException>(CurrentAvatarException);
+                return ThrowHelper.CannotUseSelfExceptionAsync();
 
             if (uri is null)
-                return Task.FromException<ArgumentNullException>(new ArgumentNullException(nameof(uri)));
+                return ThrowHelper.ArgumentNullExceptionAsync(nameof(uri));
 
             lock (_client.Lock)
             {
@@ -301,8 +292,6 @@ namespace VpNet.Entities
             (double x, double y, double z) = location.Position;
             (double pitch, double yaw, double _) = location.Rotation;
 
-            var up = new InvalidOperationException("Cannot teleport avatar when the client is not present in a world.");
-
             if (this == _client.CurrentAvatar)
             {
                 if (!string.IsNullOrWhiteSpace(worldName))
@@ -321,7 +310,7 @@ namespace VpNet.Entities
 
                     var reason = (ReasonCode) vp_state_change(_client.NativeInstanceHandle);
                     if (reason == ReasonCode.NotInWorld)
-                        throw up; // lol
+                        ThrowHelper.ThrowNotInWorldException();
                 }
             }
             else
@@ -333,7 +322,7 @@ namespace VpNet.Entities
                         (float) yaw, (float) pitch);
 
                     if (reason == ReasonCode.NotInWorld)
-                        throw up; // still lol
+                        ThrowHelper.ThrowNotInWorldException();
                 }
             }
 
