@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using VpNet.NativeApi;
 
-namespace VpNet.NativeApi
+namespace VpNet.Internal
 {
     [StructLayout(LayoutKind.Sequential, Pack = 8)]
-    struct NetConfig
+    internal struct NetConfig
     {
         public SocketCreateFunction Create;
         public SocketDestroyFunction Destroy;
