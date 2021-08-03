@@ -38,6 +38,15 @@ namespace VpNet
         public Application Application { get; init; }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether or not the client should automatically query and cache the whole world
+        ///     upon entry.
+        /// </summary>
+        /// <value>
+        ///     <see langword="true" /> if the client should query the world on entry; otherwise, <see langword="false" />.
+        /// </value>
+        public bool AutoQuery { get; set; }
+
+        /// <summary>
         ///     Gets or sets the bot name.
         /// </summary>
         /// <value>The bot name.</value>
