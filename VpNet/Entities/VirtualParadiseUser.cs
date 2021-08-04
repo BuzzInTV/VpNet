@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using VpNet.Exceptions;
 using VpNet.Internal;
-using VpNet.ManagedApi.System;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 

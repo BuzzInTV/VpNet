@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace VpNet.ManagedApi.System
+namespace VpNet.Internal
 {
     internal static class ObjectReferenceCounter
     {
