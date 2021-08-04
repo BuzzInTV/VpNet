@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using VpNet.Entities;
 
 namespace VpNet
@@ -19,7 +20,7 @@ namespace VpNet
         /// <param name="world">The world which this location will represent.</param>
         /// <param name="position">The position which this location will represent.</param>
         /// <param name="rotation">The rotation which this location will represent.</param>
-        public Location(VirtualParadiseWorld world, Vector3d position, Vector3d rotation)
+        public Location(VirtualParadiseWorld world, Vector3d position, Quaternion rotation)
         {
             World = world ?? throw new ArgumentNullException(nameof(world));
             Position = position;
@@ -33,14 +34,10 @@ namespace VpNet
         public Vector3d Position { get; }
 
         /// <summary>
-        ///     Gets the Euler rotation which this location represents.
+        ///     Gets the rotation which this location represents.
         /// </summary>
-        /// <value>The Euler rotation which this location represents.</value>
-        /// <remarks>
-        ///     If this location is referring to that of an instance of <see cref="VirtualParadiseAvatar" />, the
-        ///     <see cref="Vector3d.Z" /> component will be 0; avatars do not currently implement "roll".
-        /// </remarks>
-        public Vector3d Rotation { get; }
+        /// <value>The rotation which this location represents.</value>
+        public Quaternion Rotation { get; }
 
         /// <summary>
         ///     Gets the world which this location represents.

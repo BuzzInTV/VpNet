@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Numerics;
 using System.Security.Authentication;
 using System.Threading.Channels;
 using System.Threading.Tasks;
@@ -297,7 +298,7 @@ namespace VpNet
         public async Task<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position)
         {
             await EnterAsync(worldName);
-            await CurrentAvatar.TeleportAsync(position, Vector3d.Zero);
+            await CurrentAvatar.TeleportAsync(position, Quaternion.Identity);
             return CurrentWorld;
         }
 
@@ -314,7 +315,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position, Vector3d rotation)
+        public async Task<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position, Quaternion rotation)
         {
             await EnterAsync(worldName);
             await CurrentAvatar.TeleportAsync(position, rotation);
@@ -336,7 +337,7 @@ namespace VpNet
         public async Task EnterAsync(VirtualParadiseWorld world, Vector3d position)
         {
             await EnterAsync(world);
-            await CurrentAvatar.TeleportAsync(position, Vector3d.Zero);
+            await CurrentAvatar.TeleportAsync(position, Quaternion.Identity);
         }
 
         /// <summary>
@@ -352,7 +353,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task EnterAsync(VirtualParadiseWorld world, Vector3d position, Vector3d rotation)
+        public async Task EnterAsync(VirtualParadiseWorld world, Vector3d position, Quaternion rotation)
         {
             await EnterAsync(world);
             await CurrentAvatar.TeleportAsync(position, rotation);
@@ -456,7 +457,7 @@ namespace VpNet
             {
                 Application = _configuration.Application,
                 Name = _configuration.BotName,
-                Location = new Location(CurrentWorld, Vector3d.Zero, Vector3d.Zero),
+                Location = new Location(CurrentWorld, Vector3d.Zero, Quaternion.Identity),
                 User = CurrentUser
             };
 
@@ -756,11 +757,11 @@ namespace VpNet
                 double x = vp_double(sender, FloatAttribute.AvatarX);
                 double y = vp_double(sender, FloatAttribute.AvatarY);
                 double z = vp_double(sender, FloatAttribute.AvatarZ);
-                double pitch = vp_double(sender, FloatAttribute.AvatarPitch);
-                double yaw = vp_double(sender, FloatAttribute.AvatarYaw);
+                var pitch = (float)vp_double(sender, FloatAttribute.AvatarPitch);
+                var yaw = (float)vp_double(sender, FloatAttribute.AvatarYaw);
 
                 var position = new Vector3d(x, y, z);
-                var rotation = new Vector3d(pitch, yaw, 0);
+                var rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
 
                 string applicationName = vp_string(sender, StringAttribute.AvatarApplicationName);
                 string applicationVersion = vp_string(sender, StringAttribute.AvatarApplicationVersion);

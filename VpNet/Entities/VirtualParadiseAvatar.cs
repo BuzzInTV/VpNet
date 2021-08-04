@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -262,7 +262,7 @@ namespace VpNet.Entities
         /// </summary>
         /// <param name="position">The position to which this avatar should be teleported.</param>
         /// <param name="rotation">The rotation to which this avatar should be teleported</param>
-        public Task TeleportAsync(Vector3d position, Vector3d rotation)
+        public Task TeleportAsync(Vector3d position, Quaternion rotation)
         {
             var location = new Location(Location.World, position, rotation);
             return TeleportAsync(location);
@@ -302,7 +302,7 @@ namespace VpNet.Entities
                 lock (_client.Lock)
                 {
                     (double x, double y, double z) = location.Position;
-                    (double pitch, double yaw, double _) = location.Rotation;
+                    (double pitch, double yaw, double _) = location.Rotation.ToEulerAngles();
 
                     vp_double_set(handle, FloatAttribute.MyX, x);
                     vp_double_set(handle, FloatAttribute.MyY, y);
@@ -320,7 +320,7 @@ namespace VpNet.Entities
                 lock (_client.Lock)
                 {
                     (float x, float y, float z) = (Vector3)location.Position;
-                    (float pitch, float yaw, float _) = (Vector3)location.Rotation;
+                    (float pitch, float yaw, float _) = location.Rotation.ToEulerAngles();
 
                     var reason = (ReasonCode)vp_teleport_avatar(handle, Session, worldName, x, y, z, yaw, pitch);
                     if (reason == ReasonCode.NotInWorld)

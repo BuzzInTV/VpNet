@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Numerics;
 using VpNet.Entities;
 using VpNet.EventData;
 using VpNet.Internal;
@@ -89,7 +90,8 @@ namespace VpNet
         {
             int session;
             int type;
-            Vector3d position, rotation;
+            Vector3d position;
+            Quaternion rotation;
 
             lock (Lock)
             {
@@ -101,9 +103,9 @@ namespace VpNet
                 double z = vp_double(sender, FloatAttribute.AvatarZ);
                 position = new Vector3d(x, y, z);
 
-                double pitch = vp_double(sender, FloatAttribute.AvatarPitch);
-                double yaw = vp_double(sender, FloatAttribute.AvatarYaw);
-                rotation = new Vector3d(pitch, yaw, 0);
+                var pitch = (float)vp_double(sender, FloatAttribute.AvatarPitch);
+                var yaw = (float)vp_double(sender, FloatAttribute.AvatarYaw);
+                rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
             }
 
             var avatar = GetAvatar(session);
@@ -215,7 +217,7 @@ namespace VpNet
         private async void OnInviteNativeEvent(IntPtr sender)
         {
             Vector3d position;
-            Vector3d rotation;
+            Quaternion rotation;
             int requestId;
             int userId;
             string worldName;
@@ -231,11 +233,11 @@ namespace VpNet
                 double y = vp_double(sender, FloatAttribute.InviteY);
                 double z = vp_double(sender, FloatAttribute.InviteZ);
 
-                double yaw = vp_double(sender, FloatAttribute.InviteYaw);
-                double pitch = vp_double(sender, FloatAttribute.InvitePitch);
+                var yaw = (float)vp_double(sender, FloatAttribute.InviteYaw);
+                var pitch = (float)vp_double(sender, FloatAttribute.InvitePitch);
 
                 position = new Vector3d(x, y, z);
-                rotation = new Vector3d(yaw, pitch, 0);
+                rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
 
                 worldName = vp_string(sender, StringAttribute.InviteWorld);
             }

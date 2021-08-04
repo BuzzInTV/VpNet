@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using VpNet.Entities;
+using VpNet.Extensions;
 using VpNet.Internal;
 
 namespace VpNet
@@ -52,7 +53,7 @@ namespace VpNet
             location ??= _client.CurrentAvatar.Location;
             string worldName = location.Value.World.Name;
             (double x, double y, double z) = location.Value.Position;
-            (double pitch, double yaw, double _) = location.Value.Rotation;
+            (double pitch, double yaw, double _) = location.Value.Rotation.ToEulerAngles();
 
             lock (_client.Lock)
                 Native.vp_join_accept(_client.NativeInstanceHandle, _requestId, worldName, x, y, z, (float)yaw, (float)pitch);

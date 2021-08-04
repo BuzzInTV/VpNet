@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Numerics;
 using System.Threading.Tasks;
 using VpNet.Exceptions;
+using VpNet.Extensions;
 using VpNet.Internal;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
@@ -113,10 +115,10 @@ namespace VpNet.Entities
 
                 string world = location.Value.World.Name;
                 (double x, double y, double z) = location.Value.Position;
-                (double pitch, double yaw, _) = location.Value.Rotation;
+                (double pitch, double yaw, _) = location.Value.Rotation.ToEulerAngles();
 
                 vp_int_set(_client.NativeInstanceHandle, IntegerAttribute.ReferenceNumber, reference);
-                vp_invite(_client.NativeInstanceHandle, Id, world, x, y, z, (float) yaw, (float) pitch);
+                vp_invite(_client.NativeInstanceHandle, Id, world, x, y, z, (float)yaw, (float)pitch);
             }
 
             ReasonCode reason = await taskCompletionSource.Task;
@@ -163,7 +165,7 @@ namespace VpNet.Entities
             {
                 string worldName;
                 double x, y, z;
-                double yaw, pitch;
+                float yaw, pitch;
 
                 lock (_client.Lock)
                 {
@@ -171,14 +173,14 @@ namespace VpNet.Entities
                     y = vp_double(handle, FloatAttribute.JoinY);
                     z = vp_double(handle, FloatAttribute.JoinZ);
 
-                    yaw = vp_double(handle, FloatAttribute.JoinYaw);
-                    pitch = vp_double(handle, FloatAttribute.JoinPitch);
+                    yaw = (float)vp_double(handle, FloatAttribute.JoinYaw);
+                    pitch = (float)vp_double(handle, FloatAttribute.JoinPitch);
 
                     worldName = vp_string(handle, StringAttribute.JoinWorld);
                 }
 
                 var position = new Vector3d(x, y, z);
-                var rotation = new Vector3d(yaw, pitch, 0);
+                var rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
                 var world = await _client.GetWorldAsync(worldName);
 
                 location = new Location(world, position, rotation);
