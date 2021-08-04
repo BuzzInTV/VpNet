@@ -20,7 +20,7 @@ namespace VpNet
     /// <summary>
     ///     Provides a managed API which offers full encapsulation of the native Virtual Paradise SDK.
     /// </summary>
-    public sealed partial class VirtualParadiseClient
+    public sealed partial class VirtualParadiseClient : IDisposable
     {
         private const string DefaultUniverseHost = "universe.virtualparadise.org";
         private const int DefaultUniversePort = 57000;
@@ -60,6 +60,12 @@ namespace VpNet
         {
             _configuration = new VirtualParadiseConfiguration(configuration);
             Initialize();
+        }
+
+        /// <inheritdoc />
+        ~VirtualParadiseClient()
+        {
+            ReleaseUnmanagedResources();
         }
 
         /// <summary>
@@ -267,6 +273,13 @@ namespace VpNet
             }
 
             return ConnectAsync(host, port);
+        }
+
+        /// <inheritdoc />
+        public void Dispose()
+        {
+            ReleaseUnmanagedResources();
+            GC.SuppressFinalize(this);
         }
 
         /// <summary>
@@ -768,6 +781,12 @@ namespace VpNet
             if (args is null) return;
 
             Task.Run(() => eventHandler.Invoke(this, args));
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
+            vp_destroy(NativeInstanceHandle);
+            _instanceHandle.Free();
         }
     }
 }
