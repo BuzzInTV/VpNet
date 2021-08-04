@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -91,6 +91,11 @@ namespace VpNet
         ///     Occurs when a join request has been received.
         /// </summary>
         public event AsyncEventHandler<JoinRequestReceivedEventArgs> JoinRequestReceived;
+
+        /// <summary>
+        ///     Occurs when a chat message or console message has been received.
+        /// </summary>
+        public event AsyncEventHandler<MessageReceivedEventArgs> MessageReceived;
 
         /// <summary>
         ///     Gets a read-only view of the avatars in the vicinity of this client.

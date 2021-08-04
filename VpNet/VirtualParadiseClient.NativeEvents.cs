@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Drawing;
 using VpNet.Entities;
 using VpNet.EventData;
 using VpNet.Internal;
@@ -46,7 +47,34 @@ namespace VpNet
 
         private void OnChatNativeEvent(IntPtr sender)
         {
-            throw new NotImplementedException();
+            VirtualParadiseMessage message;
+
+            lock (Lock)
+            {
+                int session = vp_int(sender, IntegerAttribute.AvatarSession);
+                string name = vp_string(sender, StringAttribute.AvatarName);
+                string content = vp_string(sender, StringAttribute.ChatMessage);
+
+                int type = vp_int(sender, IntegerAttribute.ChatType);
+
+                var color = Color.Black;
+                var style = FontStyle.Regular;
+
+                if (type == 1)
+                {
+                    int r = vp_int(sender, IntegerAttribute.ChatRolorRed);
+                    int g = vp_int(sender, IntegerAttribute.ChatColorGreen);
+                    int b = vp_int(sender, IntegerAttribute.ChatColorBlue);
+                    color = Color.FromArgb(r, g, b);
+                    style = (FontStyle)vp_int(sender, IntegerAttribute.ChatEffects);
+                }
+
+                var avatar = GetAvatar(session);
+                message = new VirtualParadiseMessage((MessageType)type, name, content, avatar, style, color);
+            }
+
+            var args = new MessageReceivedEventArgs(message);
+            RaiseEvent(MessageReceived, args);
         }
 
         private void OnAvatarAddNativeEvent(IntPtr sender)
