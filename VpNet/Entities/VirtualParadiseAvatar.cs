@@ -106,7 +106,7 @@ namespace VpNet.Entities
                 vp_double_set(handle, FloatAttribute.ClickHitY, y);
                 vp_double_set(handle, FloatAttribute.ClickHitZ, z);
 
-                var reason = (ReasonCode) vp_avatar_click(handle, Session);
+                var reason = (ReasonCode)vp_avatar_click(handle, Session);
                 if (reason == ReasonCode.NotInWorld)
                     return ThrowHelper.NotInWorldExceptionAsync();
             }
@@ -210,7 +210,7 @@ namespace VpNet.Entities
             lock (_client.Lock)
             {
                 IntPtr handle = _client.NativeInstanceHandle;
-                var reason = (ReasonCode) vp_console_message(handle, Session, name, message, (int) style, r, g, b);
+                var reason = (ReasonCode)vp_console_message(handle, Session, name, message, (int)style, r, g, b);
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
@@ -310,7 +310,7 @@ namespace VpNet.Entities
                     vp_double_set(handle, FloatAttribute.MyPitch, pitch);
                     vp_double_set(handle, FloatAttribute.MyYaw, yaw);
 
-                    var reason = (ReasonCode) vp_state_change(_client.NativeInstanceHandle);
+                    var reason = (ReasonCode)vp_state_change(_client.NativeInstanceHandle);
                     if (reason == ReasonCode.NotInWorld)
                         ThrowHelper.ThrowNotInWorldException();
                 }
@@ -319,10 +319,10 @@ namespace VpNet.Entities
             {
                 lock (_client.Lock)
                 {
-                    (float x, float y, float z) = (Vector3) location.Position;
-                    (float pitch, float yaw, float _) = (Vector3) location.Rotation;
+                    (float x, float y, float z) = (Vector3)location.Position;
+                    (float pitch, float yaw, float _) = (Vector3)location.Rotation;
 
-                    var reason = (ReasonCode) vp_teleport_avatar(handle, Session, worldName, x, y, z, yaw, pitch);
+                    var reason = (ReasonCode)vp_teleport_avatar(handle, Session, worldName, x, y, z, yaw, pitch);
                     if (reason == ReasonCode.NotInWorld)
                         ThrowHelper.ThrowNotInWorldException();
                 }

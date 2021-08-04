@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -188,7 +188,7 @@ namespace VpNet
 
             lock (Lock)
             {
-                var reason = (ReasonCode) vp_console_message(NativeInstanceHandle, 0, name, message, (int) style, r, g, b);
+                var reason = (ReasonCode)vp_console_message(NativeInstanceHandle, 0, name, message, (int)style, r, g, b);
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
@@ -222,7 +222,7 @@ namespace VpNet
             {
                 _connectCompletionSource = new TaskCompletionSource<ReasonCode>();
 
-                reason = (ReasonCode) vp_connect_universe(NativeInstanceHandle, host, port);
+                reason = (ReasonCode)vp_connect_universe(NativeInstanceHandle, host, port);
                 if (reason != ReasonCode.Success)
                     goto NoSuccess;
             }
@@ -239,7 +239,7 @@ namespace VpNet
                     throw new SocketException();
 
                 default:
-                    throw new SocketException((int) reason);
+                    throw new SocketException((int)reason);
             }
         }
 
@@ -407,7 +407,7 @@ namespace VpNet
 
             lock (Lock)
             {
-                reason = (ReasonCode) vp_enter(NativeInstanceHandle, worldName);
+                reason = (ReasonCode)vp_enter(NativeInstanceHandle, worldName);
                 if (reason != ReasonCode.Success)
                 {
                     goto NoSuccess;
@@ -586,7 +586,7 @@ namespace VpNet
         {
             lock (Lock)
             {
-                var reason = (ReasonCode) vp_leave(NativeInstanceHandle);
+                var reason = (ReasonCode)vp_leave(NativeInstanceHandle);
                 if (reason == ReasonCode.NotInWorld)
                     return ThrowHelper.NotInWorldExceptionAsync();
             }
@@ -647,7 +647,7 @@ namespace VpNet
                     }
                 }
 
-                reason = (ReasonCode) vp_login(NativeInstanceHandle, username, password, botName);
+                reason = (ReasonCode)vp_login(NativeInstanceHandle, username, password, botName);
                 if (reason != ReasonCode.Success)
                     goto NoSuccess;
             }
@@ -693,7 +693,7 @@ namespace VpNet
 
             lock (Lock)
             {
-                var reason = (ReasonCode) vp_say(NativeInstanceHandle, message);
+                var reason = (ReasonCode)vp_say(NativeInstanceHandle, message);
 
                 switch (reason)
                 {

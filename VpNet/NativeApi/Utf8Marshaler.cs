@@ -4,24 +4,25 @@ using System.Text;
 
 namespace VpNet.NativeApi
 {
-    internal class Utf8StringToNative : ICustomMarshaler
+    internal sealed class Utf8StringToNative : ICustomMarshaler
     {
-        private static Utf8StringToNative _instance;
+        private static Utf8StringToNative s_instance;
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
-            if (_instance == null)
+            if (s_instance == null)
             {
-                _instance = new Utf8StringToNative();
+                s_instance = new Utf8StringToNative();
             }
-            return _instance;
+
+            return s_instance;
         }
 
-        public void CleanUpManagedData(object ManagedObj)
+        public void CleanUpManagedData(object managedObj)
         {
         }
 
-        public virtual void CleanUpNativeData(IntPtr pNativeData)
+        public void CleanUpNativeData(IntPtr pNativeData)
         {
             Marshal.FreeHGlobal(pNativeData);
         }
@@ -31,12 +32,12 @@ namespace VpNet.NativeApi
             return -1;
         }
 
-        public IntPtr MarshalManagedToNative(object ManagedObj)
+        public IntPtr MarshalManagedToNative(object managedObj)
         {
-            var UTF32Data = Encoding.UTF8.GetBytes((string)ManagedObj);
-            var buffer = Marshal.AllocHGlobal(UTF32Data.Length + 1);
-            Marshal.Copy(UTF32Data, 0, buffer, UTF32Data.Length);
-            Marshal.WriteByte(buffer, UTF32Data.Length, 0);
+            var utf32Data = Encoding.UTF8.GetBytes((string)managedObj);
+            var buffer = Marshal.AllocHGlobal(utf32Data.Length + 1);
+            Marshal.Copy(utf32Data, 0, buffer, utf32Data.Length);
+            Marshal.WriteByte(buffer, utf32Data.Length, 0);
             return buffer;
         }
 
@@ -46,48 +47,48 @@ namespace VpNet.NativeApi
         }
     }
 
-    internal class Utf8StringToManaged : ICustomMarshaler
+    internal sealed class Utf8StringToManaged : ICustomMarshaler
     {
-        private static Utf8StringToManaged _instance;
+        private static Utf8StringToManaged s_instance;
 
         public static ICustomMarshaler GetInstance(string cookie)
         {
-            if (_instance == null)
+            if (s_instance == null)
             {
-                _instance = new Utf8StringToManaged();
+                s_instance = new Utf8StringToManaged();
             }
-            return _instance;
+
+            return s_instance;
         }
 
-        /// <summary>
-        /// Do nothing, for some reason CleanUpNativeData is called for pointers
-        /// that are not even created by the marshaler. This can 
-        /// cause heap corruption because of double free or because a different
-        /// allocater may have been used to allocate the memory block.
-        /// </summary>
-        /// <param name="pNativeData"></param>
         public void CleanUpNativeData(IntPtr pNativeData)
         {
+            // Do nothing. For some reason CleanUpNativeData is called for pointers that are not even created by the marshaler.
+            // This can cause heap corruption because of double free or because a different allocator may have been used to
+            // allocate the memory block.
         }
-    
-        public void  CleanUpManagedData(object ManagedObj)
+
+        public void CleanUpManagedData(object managedObj)
         {
         }
 
-        public int  GetNativeDataSize()
+        public int GetNativeDataSize()
         {
             return -1;
         }
 
-        public IntPtr  MarshalManagedToNative(object ManagedObj)
+        public IntPtr MarshalManagedToNative(object managedObj)
         {
- 	        throw new NotImplementedException();
+            throw new NotImplementedException();
         }
 
         private int GetStringLength(IntPtr ptr)
         {
-            int offset = 0;
-            for (offset = 0; Marshal.ReadByte(ptr, offset) != 0; offset++) { }
+            int offset;
+            for (offset = 0; Marshal.ReadByte(ptr, offset) != 0; offset++)
+            {
+            }
+
             return offset;
         }
 

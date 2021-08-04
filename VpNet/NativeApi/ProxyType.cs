@@ -3,11 +3,12 @@
     internal enum ProxyType
     {
         /// <summary>
-        /// Connection uses no proxy.
+        ///     Connection uses no proxy.
         /// </summary>
-        ProxyNone = 0,
+        ProxyNone,
+
         /// <summary>
-        /// Connection uses socks 4A
+        ///     Connection uses socks 4A.
         /// </summary>
         ProxySocks4A
     }

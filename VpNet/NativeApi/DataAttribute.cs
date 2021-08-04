@@ -2,7 +2,7 @@
 {
     internal enum DataAttribute
     {
-	    ObjectData = 0,
-        TerrainNodeData = 1
+        ObjectData,
+        TerrainNodeData
     }
 }

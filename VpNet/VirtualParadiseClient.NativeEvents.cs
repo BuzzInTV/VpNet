@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using VpNet.Entities;
 using VpNet.EventData;
@@ -151,7 +151,7 @@ namespace VpNet
             {
                 string name = vp_string(sender, StringAttribute.WorldName);
                 int avatarCount = vp_int(sender, IntegerAttribute.WorldUsers);
-                var state = (WorldState) vp_int(sender, IntegerAttribute.WorldState);
+                var state = (WorldState)vp_int(sender, IntegerAttribute.WorldState);
 
                 world = new VirtualParadiseWorld(name)
                 {

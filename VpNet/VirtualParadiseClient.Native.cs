@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using VpNet.Exceptions;
 using VpNet.Internal;
-using VpNet.NativeApi;
+using VpNet.ManagedApi.System;
 
 namespace VpNet
 {

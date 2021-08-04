@@ -2,7 +2,7 @@
 {
     internal enum FloatAttribute
     {
-        AvatarX = 0,
+        AvatarX,
         AvatarY,
         AvatarZ,
         AvatarYaw,

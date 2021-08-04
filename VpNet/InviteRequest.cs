@@ -45,9 +45,13 @@ namespace VpNet
         /// <value>The user which sent the request.</value>
         public VirtualParadiseUser User { get; }
 
-        public static bool operator ==(InviteRequest left, InviteRequest right) => Equals(left, right);
-
-        public static bool operator !=(InviteRequest left, InviteRequest right) => !Equals(left, right);
+        /// <inheritdoc />
+        public bool Equals(InviteRequest other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _requestId == other._requestId && _client.Equals(other._client);
+        }
 
         /// <summary>
         ///     Accepts this invite request.
@@ -57,10 +61,7 @@ namespace VpNet
         /// </param>
         public Task AcceptAsync(bool suppressTeleport = false)
         {
-            lock (_client.Lock)
-            {
-                Native.vp_invite_accept(_client.NativeInstanceHandle, _requestId);
-            }
+            lock (_client.Lock) Native.vp_invite_accept(_client.NativeInstanceHandle, _requestId);
 
             if (suppressTeleport)
                 return Task.CompletedTask;
@@ -69,24 +70,13 @@ namespace VpNet
         }
 
         /// <summary>
-        ///     Declines this invite request. 
+        ///     Declines this invite request.
         /// </summary>
         public Task DeclineAsync()
         {
-            lock (_client.Lock)
-            {
-                Native.vp_invite_decline(_client.NativeInstanceHandle, _requestId);
-            }
+            lock (_client.Lock) Native.vp_invite_decline(_client.NativeInstanceHandle, _requestId);
 
             return Task.CompletedTask;
-        }
-
-        /// <inheritdoc />
-        public bool Equals(InviteRequest other)
-        {
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return _requestId == other._requestId && _client.Equals(other._client);
         }
 
         /// <inheritdoc />
@@ -98,5 +88,9 @@ namespace VpNet
 
         /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(_client, _requestId);
+
+        public static bool operator ==(InviteRequest left, InviteRequest right) => Equals(left, right);
+
+        public static bool operator !=(InviteRequest left, InviteRequest right) => !Equals(left, right);
     }
 }

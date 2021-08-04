@@ -4,19 +4,19 @@ namespace VpNet.ManagedApi.System
 {
     internal static class ObjectReferenceCounter
     {
-        private static readonly ReaderWriterLockSlim _rwl = new ReaderWriterLockSlim();
+        private static readonly ReaderWriterLockSlim Rwl = new();
 
-        private static int _reference = int.MinValue;
+        private static int s_reference = int.MinValue;
 
         internal static int GetNextReference()
         {
             int ret;
-            _rwl.EnterWriteLock();
-            if (_reference < int.MaxValue)
-                ret = _reference++;
+            Rwl.EnterWriteLock();
+            if (s_reference < int.MaxValue)
+                ret = s_reference++;
             else
-                ret = _reference = int.MinValue;
-            _rwl.ExitWriteLock();
+                ret = s_reference = int.MinValue;
+            Rwl.ExitWriteLock();
             return ret;
         }
     }
