@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Numerics;
+using VpNet.Extensions;
 using VpNet.Internal;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
@@ -69,7 +71,7 @@ namespace VpNet.Entities
         ///     Gets or sets the rotation of the object.
         /// </summary>
         /// <value>The rotation of the object, or <see langword="null" /> to leave unchanged.</value>
-        public Vector3d? Rotation { get; set; }
+        public Quaternion? Rotation { get; set; }
 
         /// <summary>
         ///     Sets the value of this object's <c>Action</c> field.
@@ -128,17 +130,23 @@ namespace VpNet.Entities
 
             if (Rotation is null && _mode == ObjectBuilderMode.Create)
             {
-                Rotation = Vector3d.Zero;
+                Rotation = Quaternion.Identity;
             }
 
             if (Rotation is { } rotation)
             {
-                // TODO add angle/axis support (see issue #3)
-                (double x, double y, double z) = rotation;
+                (double x, double y, double z) = Vector3d.Zero;
+                var angle = double.PositiveInfinity;
+                if (rotation != Quaternion.Identity)
+                {
+                    rotation.ToAxisAngle(out Vector3d axis, out angle);
+                    (x, y, z) = axis;
+                }
+
                 vp_double_set(handle, FloatAttribute.ObjectRotationX, x);
                 vp_double_set(handle, FloatAttribute.ObjectRotationY, y);
                 vp_double_set(handle, FloatAttribute.ObjectRotationZ, z);
-                vp_double_set(handle, FloatAttribute.ObjectRotationAngle, double.PositiveInfinity);
+                vp_double_set(handle, FloatAttribute.ObjectRotationAngle, angle);
             }
 
             if (ModificationTimestamp is { } modificationTimestamp)
@@ -146,7 +154,7 @@ namespace VpNet.Entities
                 if (_mode != ObjectBuilderMode.Load)
                     throw new InvalidOperationException("Modification timestamp can only be assigned during an object load.");
 
-                vp_int_set(handle, IntegerAttribute.ObjectTime, (int) modificationTimestamp.ToUnixTimeSeconds());
+                vp_int_set(handle, IntegerAttribute.ObjectTime, (int)modificationTimestamp.ToUnixTimeSeconds());
             }
 
             if (Owner is { } owner)
