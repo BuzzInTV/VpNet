@@ -6,7 +6,6 @@ using VpNet.EventData;
 using VpNet.Internal;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
-using ObjectType = VpNet.Internal.ObjectType;
 
 namespace VpNet
 {
@@ -21,7 +20,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.Object, OnObjectNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectChange, OnObjectChangeNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectDelete, OnObjectDeleteNativeEvent);
-            // SetNativeEvent(NativeEvent.ObjectClick, OnObjectClickNativeEvent);
+            SetNativeEvent(NativeEvent.ObjectClick, OnObjectClickNativeEvent);
             SetNativeEvent(NativeEvent.WorldList, OnWorldListNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSettingsChanged, OnWorldSettingsChangedNativeEvent);
@@ -170,6 +169,29 @@ namespace VpNet
                 var args = new ObjectCreatedEventArgs(avatar, virtualParadiseObject);
                 RaiseEvent(ObjectCreated, args);
             }
+        }
+
+        private async void OnObjectClickNativeEvent(IntPtr sender)
+        {
+            Vector3d clickPoint;
+            int objectId;
+            int session;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = vp_int(sender, IntegerAttribute.ObjectId);
+
+                double x = vp_double(sender, FloatAttribute.ClickHitX);
+                double y = vp_double(sender, FloatAttribute.ClickHitY);
+                double z = vp_double(sender, FloatAttribute.ClickHitZ);
+                clickPoint = new Vector3d(x, y, z);
+            }
+
+            var avatar = GetAvatar(session);
+            var virtualParadiseObject = await GetObjectAsync(objectId);
+            var args = new ObjectClickedEventArgs(avatar, virtualParadiseObject, clickPoint);
+            RaiseEvent(ObjectClicked, args);
         }
 
         private async void OnWorldListNativeEvent(IntPtr sender)

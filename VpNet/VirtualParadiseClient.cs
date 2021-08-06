@@ -110,6 +110,11 @@ namespace VpNet
         public event AsyncEventHandler<MessageReceivedEventArgs> MessageReceived;
 
         /// <summary>
+        ///     Occurs when an avatar has clicked an object.
+        /// </summary>
+        public event AsyncEventHandler<ObjectClickedEventArgs> ObjectClicked; 
+
+        /// <summary>
         ///     Occurs when an object has been created.
         /// </summary>
         public event AsyncEventHandler<ObjectCreatedEventArgs> ObjectCreated;
