@@ -28,6 +28,19 @@ namespace VpNet
         }
 
         /// <summary>
+        ///     Gets the cell corresponding to this location.
+        /// </summary>
+        public Cell Cell
+        {
+            get
+            {
+                int x = (int)Math.Floor(Position.X);
+                int z = (int)Math.Floor(Position.Z);
+                return new Cell(x, z);
+            }
+        }
+
+        /// <summary>
         ///     Gets the position which this location represents.
         /// </summary>
         /// <value>The position which this location represents.</value>

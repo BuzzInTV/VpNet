@@ -61,5 +61,13 @@ namespace VpNet.Entities
                 vp_object_change(handle);
             }
         }
+
+        /// <inheritdoc />
+        protected internal override void ExtractFromInstance(IntPtr handle)
+        {
+            Action = vp_string(handle, StringAttribute.ObjectAction);
+            Description = vp_string(handle, StringAttribute.ObjectDescription);
+            Model = vp_string(handle, StringAttribute.ObjectModel);
+        }
     }
 }

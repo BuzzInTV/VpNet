@@ -95,5 +95,14 @@ namespace VpNet {
                 return ResourceManager.GetString("StringTooLong", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value must be 0.0 through 1.0..
+        /// </summary>
+        internal static string ZeroThroughOne {
+            get {
+                return ResourceManager.GetString("ZeroThroughOne", resourceCulture);
+            }
+        }
     }
 }

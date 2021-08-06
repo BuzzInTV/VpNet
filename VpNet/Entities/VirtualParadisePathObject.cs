@@ -4,8 +4,6 @@ using System.Numerics;
 using System.Text;
 using Cysharp.Text;
 using VpNet.Extensions;
-using VpNet.Internal;
-using VpNet.NativeApi;
 
 namespace VpNet.Entities
 {
@@ -26,23 +24,7 @@ namespace VpNet.Entities
         /// <value>The path in this object.</value>
         public VirtualParadisePath Path { get; set; }
 
-        internal void ExtractFromInstance(IntPtr handle)
-        {
-            Span<byte> data = Span<byte>.Empty;
-
-            IntPtr dataPtr = Native.vp_data(handle, DataAttribute.ObjectData, out int length);
-            if (length > 0)
-            {
-                unsafe
-                {
-                    data = new Span<byte>(dataPtr.ToPointer(), length);
-                }
-            }
-
-            ExtractFromData(data);
-        }
-
-        internal void ExtractFromData(ReadOnlySpan<byte> data)
+        protected override void ExtractFromData(ReadOnlySpan<byte> data)
         {
             Span<char> chars = stackalloc char[data.Length];
             Encoding.UTF8.GetChars(data, chars);

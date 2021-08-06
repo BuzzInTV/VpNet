@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using VpNet.Exceptions;
 using VpNet.Extensions;
 using VpNet.Internal;
+using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 
 namespace VpNet.Entities
@@ -65,7 +66,7 @@ namespace VpNet.Entities
             lock (Client.Lock)
             {
                 int session = target?.Session ?? 0;
-                (float x, float y, float z) = (Vector3) (position ?? Vector3d.Zero);
+                (float x, float y, float z) = (Vector3)(position ?? Vector3d.Zero);
 
                 vp_object_click(Client.NativeInstanceHandle, Id, session, x, y, z);
             }
@@ -82,7 +83,7 @@ namespace VpNet.Entities
         {
             lock (Client.Lock)
             {
-                var reason = (ReasonCode) vp_object_delete(Client.NativeInstanceHandle, Id);
+                var reason = (ReasonCode)vp_object_delete(Client.NativeInstanceHandle, Id);
 
                 switch (reason)
                 {
@@ -115,10 +116,30 @@ namespace VpNet.Entities
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != GetType()) return false;
-            return Equals((VirtualParadiseObject) obj);
+            return Equals((VirtualParadiseObject)obj);
         }
 
         /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(Location.World, Id);
+
+        protected internal virtual void ExtractFromInstance(IntPtr handle)
+        {
+            Span<byte> data = Span<byte>.Empty;
+            IntPtr dataPtr = vp_data(handle, DataAttribute.ObjectData, out int length);
+
+            if (length > 0)
+            {
+                unsafe
+                {
+                    data = new Span<byte>(dataPtr.ToPointer(), length);
+                }
+            }
+
+            ExtractFromData(data);
+        }
+
+        protected virtual void ExtractFromData(ReadOnlySpan<byte> data)
+        {
+        }
     }
 }

@@ -34,4 +34,7 @@
     <data name="CannotUseSelf" xml:space="preserve">
         <value>The operation cannot be performed on the client's current avatar.</value>
     </data>
+    <data name="ZeroThroughOne" xml:space="preserve">
+        <value>Value must be 0.0 through 1.0.</value>
+    </data>
 </root>

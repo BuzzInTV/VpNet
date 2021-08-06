@@ -31,6 +31,7 @@ namespace VpNet
         private readonly ConcurrentDictionary<int, VirtualParadiseAvatar> _avatars = new();
         private readonly ConcurrentDictionary<int, VirtualParadiseObject> _objects = new();
         private readonly ConcurrentDictionary<int, VirtualParadiseUser> _users = new();
+        private readonly ConcurrentDictionary<Cell, Channel<VirtualParadiseObject>> _cellChannels = new();
 
         private readonly ConcurrentDictionary<NativeCallback, NativeCallbackHandler> _nativeCallbackHandlers = new();
         private readonly ConcurrentDictionary<NativeEvent, NativeEventHandler> _nativeEventHandlers = new();
@@ -103,6 +104,11 @@ namespace VpNet
         ///     Occurs when a chat message or console message has been received.
         /// </summary>
         public event AsyncEventHandler<MessageReceivedEventArgs> MessageReceived;
+
+        /// <summary>
+        ///     Occurs when an object has been created.
+        /// </summary>
+        public event AsyncEventHandler<ObjectCreatedEventArgs> ObjectCreated; 
 
         /// <summary>
         ///     Gets a read-only view of the avatars in the vicinity of this client.
@@ -467,6 +473,59 @@ namespace VpNet
             }
 
             return CurrentWorld;
+        }
+
+        /// <summary>
+        ///     Enumerates all objects within a specified cell.
+        /// </summary>
+        /// <param name="cell">The cell whose objects to enumerate.</param>
+        /// <param name="revision">The cell revision.</param>
+        /// <returns>An enumerable of <see cref="VirtualParadiseObject" />.</returns>
+        public IAsyncEnumerable<VirtualParadiseObject> EnumerateObjectsAsync(Cell cell, int? revision = null)
+        {
+            if (_cellChannels.TryGetValue(cell, out var channel))
+                return channel.Reader.ReadAllAsync();
+
+            channel = Channel.CreateUnbounded<VirtualParadiseObject>();
+            _cellChannels.TryAdd(cell, channel);
+
+            lock (Lock)
+            {
+                if (revision is not null)
+                {
+                    vp_query_cell_revision(NativeInstanceHandle, cell.X, cell.Z, revision.Value);
+                }
+                else
+                {
+                    vp_query_cell(NativeInstanceHandle, cell.X, cell.Z);
+                }
+            }
+
+            return channel.Reader.ReadAllAsync();
+        }
+
+        /// <summary>
+        ///     Enumerates all objects within a specified range of cell.
+        /// </summary>
+        /// <param name="center">The cell whose objects to enumerate.</param>
+        /// <param name="radius">The range of cells to query.</param>
+        /// <param name="revision">The cell revision.</param>
+        /// <returns>An enumerable of <see cref="VirtualParadiseObject" />.</returns>
+        public async IAsyncEnumerable<VirtualParadiseObject> EnumerateObjectsAsync(Cell center, int radius, int? revision = null)
+        {
+            if (radius < 0) throw new ArgumentException("Range must be greater than or equal to 1.");
+            
+            var cells = new HashSet<Cell>();
+            
+            for (int x = center.X - radius; x < center.X + radius; x++)
+            for (int z = center.Z - radius; z < center.Z + radius; z++)
+                cells.Add(new Cell(x, z));
+
+            foreach (var cell in cells.OrderBy(c => Vector2.Distance(c, center)))
+            {
+                await foreach (var vpObject in EnumerateObjectsAsync(cell))
+                    yield return vpObject;
+            }
         }
 
         /// <summary>

@@ -50,5 +50,14 @@ namespace VpNet.Internal
 
         public static void ThrowStringTooLongException(string paramName) =>
             throw StringTooLongException(paramName);
+
+        public static ArgumentOutOfRangeException ZeroThroughOneException(string paramName) =>
+            new(paramName, ExceptionMessages.ZeroThroughOne);
+
+        public static Task<ArgumentOutOfRangeException> ZeroThroughOneExceptionAsync(string paramName) =>
+            Task.FromException<ArgumentOutOfRangeException>(ZeroThroughOneException(paramName));
+
+        public static void ThrowZeroThroughOneException(string paramName) =>
+            throw ZeroThroughOneException(paramName);
     }
 }
