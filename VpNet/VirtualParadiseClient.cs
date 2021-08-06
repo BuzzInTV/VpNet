@@ -36,8 +36,12 @@ namespace VpNet
         private readonly ConcurrentDictionary<NativeCallback, NativeCallbackHandler> _nativeCallbackHandlers = new();
         private readonly ConcurrentDictionary<NativeEvent, NativeEventHandler> _nativeEventHandlers = new();
 
-        private readonly Dictionary<int, TaskCompletionSource<ReasonCode>> _joinCompletionSources = new();
         private readonly Dictionary<int, TaskCompletionSource<ReasonCode>> _inviteCompletionSources = new();
+        private readonly Dictionary<int, TaskCompletionSource<ReasonCode>> _joinCompletionSources = new();
+
+        private readonly ConcurrentDictionary<int, TaskCompletionSource<(ReasonCode, VirtualParadiseObject)>>
+            _objectCompletionSources = new();
+
         private readonly ConcurrentDictionary<int, TaskCompletionSource<VirtualParadiseUser>> _usersCompletionSources = new();
 
         private TaskCompletionSource<ReasonCode> _connectCompletionSource;
@@ -108,7 +112,7 @@ namespace VpNet
         /// <summary>
         ///     Occurs when an object has been created.
         /// </summary>
-        public event AsyncEventHandler<ObjectCreatedEventArgs> ObjectCreated; 
+        public event AsyncEventHandler<ObjectCreatedEventArgs> ObjectCreated;
 
         /// <summary>
         ///     Gets a read-only view of the avatars in the vicinity of this client.
@@ -514,9 +518,9 @@ namespace VpNet
         public async IAsyncEnumerable<VirtualParadiseObject> EnumerateObjectsAsync(Cell center, int radius, int? revision = null)
         {
             if (radius < 0) throw new ArgumentException("Range must be greater than or equal to 1.");
-            
+
             var cells = new HashSet<Cell>();
-            
+
             for (int x = center.X - radius; x < center.X + radius; x++)
             for (int z = center.Z - radius; z < center.Z + radius; z++)
                 cells.Add(new Cell(x, z));
@@ -540,6 +544,50 @@ namespace VpNet
         {
             _avatars.TryGetValue(session, out VirtualParadiseAvatar avatar);
             return avatar;
+        }
+
+        /// <summary>
+        ///     Gets an object by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the object to retrieve.</param>
+        /// <returns>The retrieved object.</returns>
+        /// <exception cref="Exception">
+        ///     <para>An error occurred communicating with the database.</para>
+        ///     -or-
+        ///     <para>An unknown error occurred retrieving the object.</para>
+        /// </exception>
+        /// <exception cref="ObjectNotFoundException">No object with the ID <paramref name="id" /> was found.</exception>
+        public async Task<VirtualParadiseObject> GetObjectAsync(int id)
+        {
+            ReasonCode reason;
+            VirtualParadiseObject result = null;
+
+            if (!_objectCompletionSources.TryGetValue(id, out var taskCompletionSource))
+            {
+                taskCompletionSource = new TaskCompletionSource<(ReasonCode, VirtualParadiseObject)>();
+                _objectCompletionSources.TryAdd(id, taskCompletionSource);
+
+                lock (Lock)
+                {
+                    vp_int_set(NativeInstanceHandle, IntegerAttribute.ReferenceNumber, id);
+                    reason = (ReasonCode)vp_object_get(NativeInstanceHandle, id);
+                    if (reason != ReasonCode.Success)
+                        goto PreReturn;
+                }
+            }
+
+            (reason, result) = await taskCompletionSource.Task;
+            _objectCompletionSources.TryRemove(id, out var _);
+
+            PreReturn:
+            return reason switch
+            {
+                ReasonCode.DatabaseError => throw new Exception("Error communicating with the database."),
+                ReasonCode.ObjectNotFound => throw new ObjectNotFoundException(),
+                ReasonCode.UnknownError => throw new Exception("An unknown error occurred retrieving the object."),
+                var _ when reason != ReasonCode.Success => throw new Exception($"{reason:D} ({reason:G})"),
+                var _ => result
+            };
         }
 
         /// <summary>
@@ -833,6 +881,47 @@ namespace VpNet
                     Application = new Application(applicationName, applicationVersion)
                 };
             }
+        }
+
+        private VirtualParadiseObject ExtractObject(IntPtr sender)
+        {
+            var type = (ObjectType)vp_int(sender, IntegerAttribute.ObjectType);
+            int id = vp_int(sender, IntegerAttribute.ObjectId);
+
+            double x = vp_double(sender, FloatAttribute.ObjectX);
+            double y = vp_double(sender, FloatAttribute.ObjectY);
+            double z = vp_double(sender, FloatAttribute.ObjectZ);
+            var position = new Vector3d(x, y, z);
+
+            float rotX = vp_float(sender, FloatAttribute.ObjectRotationX);
+            float rotY = vp_float(sender, FloatAttribute.ObjectRotationY);
+            float rotZ = vp_float(sender, FloatAttribute.ObjectRotationZ);
+            float angle = vp_float(sender, FloatAttribute.ObjectRotationAngle);
+            Quaternion rotation;
+
+            if (double.IsPositiveInfinity(angle))
+            {
+                rotation = Quaternion.CreateFromYawPitchRoll(rotY, rotX, rotZ);
+            }
+            else
+            {
+                var axis = new Vector3(rotX, rotY, rotZ);
+                rotation = Quaternion.CreateFromAxisAngle(axis, angle);
+            }
+
+            VirtualParadiseObject virtualParadiseObject = type switch
+            {
+                ObjectType.Model => new VirtualParadiseModelObject(this, id),
+                ObjectType.ParticleEmitter => new VirtualParadiseParticleEmitterObject(this, id),
+                ObjectType.Path => new VirtualParadisePathObject(this, id),
+                var _ => throw new NotSupportedException("Unsupported object type.")
+            };
+
+            virtualParadiseObject.ExtractFromInstance(sender);
+
+            var location = new Location(CurrentWorld, position, rotation);
+            virtualParadiseObject.Location = location;
+            return virtualParadiseObject;
         }
 
         private void RaiseEvent<T>(AsyncEventHandler<T> eventHandler, T args) where T : EventArgs

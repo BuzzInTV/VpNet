@@ -155,43 +155,8 @@ namespace VpNet
             lock (Lock)
             {
                 session = vp_int(sender, IntegerAttribute.AvatarSession);
-                var type = (ObjectType)vp_int(sender, IntegerAttribute.ObjectType);
-                int id = vp_int(sender, IntegerAttribute.ObjectId);
-
-                double x = vp_double(sender, FloatAttribute.ObjectX);
-                double y = vp_double(sender, FloatAttribute.ObjectY);
-                double z = vp_double(sender, FloatAttribute.ObjectZ);
-                var position = new Vector3d(x, y, z);
-
-                float rotX = vp_float(sender, FloatAttribute.ObjectRotationX);
-                float rotY = vp_float(sender, FloatAttribute.ObjectRotationY);
-                float rotZ = vp_float(sender, FloatAttribute.ObjectRotationZ);
-                float angle = vp_float(sender, FloatAttribute.ObjectRotationAngle);
-                Quaternion rotation;
-
-                if (double.IsPositiveInfinity(angle))
-                {
-                    rotation = Quaternion.CreateFromYawPitchRoll(rotY, rotX, rotZ);
-                }
-                else
-                {
-                    var axis = new Vector3(rotX, rotY, rotZ);
-                    rotation = Quaternion.CreateFromAxisAngle(axis, angle);
-                }
-
-                virtualParadiseObject = type switch
-                {
-                    ObjectType.Model => new VirtualParadiseModelObject(this, id),
-                    ObjectType.ParticleEmitter => new VirtualParadiseParticleEmitterObject(this, id),
-                    ObjectType.Path => new VirtualParadisePathObject(this, id),
-                    var _ => throw new NotSupportedException("Unsupported object type.")
-                };
-
-                virtualParadiseObject.ExtractFromInstance(sender);
-
-                var location = new Location(CurrentWorld, position, rotation);
-                virtualParadiseObject.Location = location;
-                cell = location.Cell;
+                virtualParadiseObject = ExtractObject(sender);
+                cell = virtualParadiseObject.Location.Cell;
             }
 
             if (session == 0)

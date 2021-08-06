@@ -1,4 +1,5 @@
 ﻿using System;
+using VpNet.Entities;
 using VpNet.Internal;
 using static VpNet.Internal.Native;
 
@@ -16,7 +17,7 @@ namespace VpNet
             // SetNativeCallback(NativeCallback.FriendDelete, OnFriendDeleteNativeCallback);
             // SetNativeCallback(NativeCallback.TerrainQuery, OnTerrainQueryNativeCallback);
             // SetNativeCallback(NativeCallback.TerrainNodeSet, OnTerrainNodeSetNativeCallback);
-            // SetNativeCallback(NativeCallback.ObjectGet, OnObjectGetNativeCallback);
+            SetNativeCallback(NativeCallback.ObjectGet, OnObjectGetNativeCallback);
             // SetNativeCallback(NativeCallback.ObjectLoad, OnObjectLoadNativeCallback);
             SetNativeCallback(NativeCallback.Login, OnLoginNativeCallback);
             SetNativeCallback(NativeCallback.Enter, OnEnterNativeCallback);
@@ -33,6 +34,15 @@ namespace VpNet
         {
             _nativeCallbackHandlers.TryAdd(nativeCallback, handler);
             vp_callback_set(NativeInstanceHandle, nativeCallback, handler);
+        }
+
+        private void OnObjectGetNativeCallback(IntPtr sender, ReasonCode reason, int reference)
+        {
+            if (!_objectCompletionSources.TryGetValue(reference, out var taskCompletionSource))
+                return;
+
+            VirtualParadiseObject virtualParadiseObject = reason == ReasonCode.Success ? ExtractObject(sender) : null;
+            taskCompletionSource.SetResult((reason, virtualParadiseObject));
         }
 
         private void OnLoginNativeCallback(IntPtr sender, ReasonCode reason, int reference)
