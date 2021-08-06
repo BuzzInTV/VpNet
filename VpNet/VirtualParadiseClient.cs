@@ -564,8 +564,10 @@ namespace VpNet
         /// <exception cref="ObjectNotFoundException">No object with the ID <paramref name="id" /> was found.</exception>
         public async Task<VirtualParadiseObject> GetObjectAsync(int id)
         {
+            if (_objects.TryGetValue(id, out var virtualParadiseObject))
+                return virtualParadiseObject;
+            
             ReasonCode reason;
-            VirtualParadiseObject result = null;
 
             if (!_objectCompletionSources.TryGetValue(id, out var taskCompletionSource))
             {
@@ -581,8 +583,11 @@ namespace VpNet
                 }
             }
 
-            (reason, result) = await taskCompletionSource.Task;
+            (reason, virtualParadiseObject) = await taskCompletionSource.Task;
             _objectCompletionSources.TryRemove(id, out var _);
+
+            if (virtualParadiseObject is not null)
+                _objects.TryAdd(id, virtualParadiseObject);
 
             PreReturn:
             return reason switch
@@ -591,7 +596,7 @@ namespace VpNet
                 ReasonCode.ObjectNotFound => throw new ObjectNotFoundException(),
                 ReasonCode.UnknownError => throw new Exception("An unknown error occurred retrieving the object."),
                 var _ when reason != ReasonCode.Success => throw new Exception($"{reason:D} ({reason:G})"),
-                var _ => result
+                var _ => virtualParadiseObject
             };
         }
 
