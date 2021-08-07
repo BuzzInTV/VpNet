@@ -8,7 +8,10 @@ namespace VpNet.EventData
     /// </summary>
     public sealed class MessageReceivedEventArgs : EventArgs
     {
-        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MessageReceivedEventArgs" /> class.
+        /// </summary>
+        /// <param name="message">The received message.</param>
         public MessageReceivedEventArgs(VirtualParadiseMessage message)
         {
             Message = message;

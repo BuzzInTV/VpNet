@@ -8,7 +8,12 @@ namespace VpNet.EventData
     /// </summary>
     public sealed class ObjectClickedEventArgs : EventArgs
     {
-        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ObjectClickedEventArgs" /> class.
+        /// </summary>
+        /// <param name="avatar">The avatar responsible for the click.</param>
+        /// <param name="virtualParadiseObject">The clicked object.</param>
+        /// <param name="clickPoint">The click point.</param>
         public ObjectClickedEventArgs(
             VirtualParadiseAvatar avatar,
             VirtualParadiseObject virtualParadiseObject,

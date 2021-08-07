@@ -7,7 +7,10 @@ namespace VpNet.EventData
     /// </summary>
     public sealed class InviteRequestReceivedEventArgs : EventArgs
     {
-        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="InviteRequestReceivedEventArgs" /> class.
+        /// </summary>
+        /// <param name="inviteRequest">The invite request.</param>
         public InviteRequestReceivedEventArgs(InviteRequest inviteRequest)
         {
             InviteRequest = inviteRequest;

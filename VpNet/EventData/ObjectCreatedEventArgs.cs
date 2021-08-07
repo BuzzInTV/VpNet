@@ -8,11 +8,15 @@ namespace VpNet.EventData
     /// </summary>
     public sealed class ObjectCreatedEventArgs : EventArgs
     {
-        /// <inheritdoc />
-        public ObjectCreatedEventArgs(VirtualParadiseAvatar avatar, VirtualParadiseObject theObject)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ObjectClickedEventArgs" /> class.
+        /// </summary>
+        /// <param name="avatar">The avatar responsible for the object being created.</param>
+        /// <param name="virtualParadiseObject">The created object.</param>
+        public ObjectCreatedEventArgs(VirtualParadiseAvatar avatar, VirtualParadiseObject virtualParadiseObject)
         {
             Avatar = avatar;
-            Object = theObject;
+            Object = virtualParadiseObject;
         }
 
         /// <summary>

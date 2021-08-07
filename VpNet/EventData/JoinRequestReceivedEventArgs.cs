@@ -7,7 +7,10 @@ namespace VpNet.EventData
     /// </summary>
     public sealed class JoinRequestReceivedEventArgs : EventArgs
     {
-        /// <inheritdoc />
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="JoinRequestReceivedEventArgs" /> class.
+        /// </summary>
+        /// <param name="joinRequest">The join request.</param>
         public JoinRequestReceivedEventArgs(JoinRequest joinRequest)
         {
             JoinRequest = joinRequest;
