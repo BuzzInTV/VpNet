@@ -893,10 +893,11 @@ namespace VpNet
             }
         }
 
-        private VirtualParadiseObject ExtractObject(IntPtr sender)
+        private async Task<VirtualParadiseObject> ExtractObjectAsync(IntPtr sender)
         {
             var type = (ObjectType)vp_int(sender, IntegerAttribute.ObjectType);
             int id = vp_int(sender, IntegerAttribute.ObjectId);
+            int owner = vp_int(sender, IntegerAttribute.ObjectUserId);
 
             double x = vp_double(sender, FloatAttribute.ObjectX);
             double y = vp_double(sender, FloatAttribute.ObjectY);
@@ -931,6 +932,7 @@ namespace VpNet
 
             var location = new Location(CurrentWorld, position, rotation);
             virtualParadiseObject.Location = location;
+            virtualParadiseObject.Owner = await GetUserAsync(owner);
             return virtualParadiseObject;
         }
 

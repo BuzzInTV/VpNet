@@ -31,6 +31,12 @@ namespace VpNet.Entities
         /// </summary>
         /// <value>The location of this object.</value>
         public Location Location { get; internal set; }
+        
+        /// <summary>
+        ///     Gets the owner of this object.
+        /// </summary>
+        /// <value>The owner of this object.</value>
+        public VirtualParadiseUser Owner { get; internal set; }
 
         private protected VirtualParadiseClient Client { get; }
 

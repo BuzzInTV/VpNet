@@ -36,12 +36,12 @@ namespace VpNet
             vp_callback_set(NativeInstanceHandle, nativeCallback, handler);
         }
 
-        private void OnObjectGetNativeCallback(IntPtr sender, ReasonCode reason, int reference)
+        private async void OnObjectGetNativeCallback(IntPtr sender, ReasonCode reason, int reference)
         {
             if (!_objectCompletionSources.TryGetValue(reference, out var taskCompletionSource))
                 return;
 
-            VirtualParadiseObject virtualParadiseObject = reason == ReasonCode.Success ? ExtractObject(sender) : null;
+            VirtualParadiseObject virtualParadiseObject = reason == ReasonCode.Success ? await ExtractObjectAsync(sender) : null;
             taskCompletionSource.SetResult((reason, virtualParadiseObject));
         }
 

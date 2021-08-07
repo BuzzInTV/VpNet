@@ -147,16 +147,22 @@ namespace VpNet
 
         private async void OnObjectNativeEvent(IntPtr sender)
         {
-            Cell cell;
-            VirtualParadiseObject virtualParadiseObject;
             int session;
 
             lock (Lock)
             {
                 session = vp_int(sender, IntegerAttribute.AvatarSession);
-                virtualParadiseObject = ExtractObject(sender);
-                cell = virtualParadiseObject.Location.Cell;
             }
+
+            var virtualParadiseObject = await ExtractObjectAsync(sender);
+            var cell = virtualParadiseObject.Location.Cell;
+
+            _objects.AddOrUpdate(virtualParadiseObject.Id, virtualParadiseObject, (_, o) =>
+            {
+                o.Location = virtualParadiseObject.Location;
+                o.ExtractFromInstance(sender);
+                return o;
+            });
 
             if (session == 0)
             {
