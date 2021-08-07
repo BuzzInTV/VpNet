@@ -166,7 +166,7 @@ namespace VpNet
         /// <exception cref="ArgumentNullException"><paramref name="message" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentException"><paramref name="message" /> is too long to send.</exception>
         /// <exception cref="InvalidOperationException">The client is not connected to a world.</exception>
-        public Task BroadcastConsoleMessageAsync(string message, FontStyle style = FontStyle.Regular, Color? color = null)
+        public ValueTask BroadcastConsoleMessageAsync(string message, FontStyle style = FontStyle.Regular, Color? color = null)
         {
             return BroadcastConsoleMessageAsync(string.Empty, message, style, color);
         }
@@ -187,7 +187,7 @@ namespace VpNet
         /// <exception cref="ArgumentNullException"><paramref name="message" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentException"><paramref name="message" /> is too long to send.</exception>
         /// <exception cref="InvalidOperationException">The client is not connected to a world.</exception>
-        public Task BroadcastConsoleMessageAsync(
+        public ValueTask BroadcastConsoleMessageAsync(
             string name,
             string message,
             FontStyle style = FontStyle.Regular,
@@ -196,7 +196,7 @@ namespace VpNet
             name ??= string.Empty;
 
             if (message is null!)
-                return ThrowHelper.ArgumentNullExceptionAsync(nameof(message));
+                return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(message)));
 
             byte r = color?.R ?? 0;
             byte g = color?.G ?? 0;
@@ -208,14 +208,14 @@ namespace VpNet
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
-                        return ThrowHelper.NotInWorldExceptionAsync();
+                        return ValueTask.FromException(ThrowHelper.NotInWorldException());
 
                     case ReasonCode.StringTooLong:
-                        return ThrowHelper.StringTooLongExceptionAsync(nameof(message));
+                        return ValueTask.FromException(ThrowHelper.StringTooLongException(nameof(message)));
                 }
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -227,7 +227,7 @@ namespace VpNet
         ///     If <paramref name="host" /> is <see langword="null" /> and/or <paramref name="port" /> is less than 1, the client
         ///     will use the default host and port values respectively.
         /// </remarks>
-        public async Task ConnectAsync(string host = null, int port = -1)
+        public async ValueTask ConnectAsync(string host = null, int port = -1)
         {
             if (string.IsNullOrWhiteSpace(host)) host = DefaultUniverseHost;
             if (port < 1) port = DefaultUniversePort;
@@ -265,7 +265,7 @@ namespace VpNet
         /// <param name="remoteEP">The remote endpoint of the universe.</param>
         /// <exception cref="ArgumentNullException"><paramref name="remoteEP" /> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentException"><paramref name="remoteEP" /> is not a supported endpoint.</exception>
-        public Task ConnectAsync(EndPoint remoteEP)
+        public ValueTask ConnectAsync(EndPoint remoteEP)
         {
             if (remoteEP is null) throw new ArgumentNullException(nameof(remoteEP));
 
@@ -310,7 +310,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position)
+        public async ValueTask<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position)
         {
             await EnterAsync(worldName);
             await CurrentAvatar.TeleportAsync(position, Quaternion.Identity);
@@ -330,7 +330,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position, Quaternion rotation)
+        public async ValueTask<VirtualParadiseWorld> EnterAsync(string worldName, Vector3d position, Quaternion rotation)
         {
             await EnterAsync(worldName);
             await CurrentAvatar.TeleportAsync(position, rotation);
@@ -349,7 +349,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task EnterAsync(VirtualParadiseWorld world, Vector3d position)
+        public async ValueTask EnterAsync(VirtualParadiseWorld world, Vector3d position)
         {
             await EnterAsync(world);
             await CurrentAvatar.TeleportAsync(position, Quaternion.Identity);
@@ -368,7 +368,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task EnterAsync(VirtualParadiseWorld world, Vector3d position, Quaternion rotation)
+        public async ValueTask EnterAsync(VirtualParadiseWorld world, Vector3d position, Quaternion rotation)
         {
             await EnterAsync(world);
             await CurrentAvatar.TeleportAsync(position, rotation);
@@ -385,7 +385,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task EnterAsync(VirtualParadiseWorld world)
+        public async ValueTask EnterAsync(VirtualParadiseWorld world)
         {
             if (world is null) throw new ArgumentNullException(nameof(world));
             await EnterAsync(world.Name);
@@ -404,7 +404,7 @@ namespace VpNet
         /// <exception cref="Exception">Connection to the universe server was lost, or connecting to the world failed.</exception>
         /// <exception cref="WorldNotFoundException">The specified world was not found.</exception>
         /// <exception cref="TimeoutException">Connection to the world server timed out.</exception>
-        public async Task<VirtualParadiseWorld> EnterAsync(string worldName)
+        public async ValueTask<VirtualParadiseWorld> EnterAsync(string worldName)
         {
             if (worldName is null) throw new ArgumentNullException(nameof(worldName));
 
@@ -562,7 +562,7 @@ namespace VpNet
         ///     <para>An unknown error occurred retrieving the object.</para>
         /// </exception>
         /// <exception cref="ObjectNotFoundException">No object with the ID <paramref name="id" /> was found.</exception>
-        public async Task<VirtualParadiseObject> GetObjectAsync(int id)
+        public async ValueTask<VirtualParadiseObject> GetObjectAsync(int id)
         {
             if (_objects.TryGetValue(id, out var virtualParadiseObject))
                 return virtualParadiseObject;
@@ -607,7 +607,7 @@ namespace VpNet
         /// <returns>
         ///     The user whose ID is equal to <paramref name="userId" />, or <see langword="null" /> if no match was found.
         /// </returns>
-        public async Task<VirtualParadiseUser> GetUserAsync(int userId)
+        public async ValueTask<VirtualParadiseUser> GetUserAsync(int userId)
         {
             if (_users.TryGetValue(userId, out var user))
                 return user;
@@ -638,7 +638,7 @@ namespace VpNet
         ///     A <see cref="VirtualParadiseWorld" /> whose name is equal to <paramref name="name" />, or <see langword="null" />
         ///     if no match was found.
         /// </returns>
-        public async Task<VirtualParadiseWorld> GetWorldAsync(string name)
+        public async ValueTask<VirtualParadiseWorld> GetWorldAsync(string name)
         {
             await foreach (var world in EnumerateWorldsAsync())
             {
@@ -659,7 +659,7 @@ namespace VpNet
         ///     <see cref="EnumerateWorldsAsync" />.
         /// </remarks>
         /// <seealso cref="EnumerateWorldsAsync" />
-        public async Task<IReadOnlyCollection<VirtualParadiseWorld>> GetWorldsAsync()
+        public async ValueTask<IReadOnlyCollection<VirtualParadiseWorld>> GetWorldsAsync()
         {
             var worlds = new List<VirtualParadiseWorld>();
 
@@ -700,18 +700,18 @@ namespace VpNet
         /// <exception cref="InvalidOperationException">
         ///     An attempt was made to leave a world when the client was not present in one.
         /// </exception>
-        public Task LeaveAsync()
+        public ValueTask LeaveAsync()
         {
             lock (Lock)
             {
                 var reason = (ReasonCode)vp_leave(NativeInstanceHandle);
                 if (reason == ReasonCode.NotInWorld)
-                    return ThrowHelper.NotInWorldExceptionAsync();
+                    return ValueTask.FromException(ThrowHelper.NotInWorldException());
             }
 
             _avatars.Clear();
             _objects.Clear();
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -804,10 +804,10 @@ namespace VpNet
         /// <exception cref="ArgumentNullException"><paramref name="message" /> is <see langword="null" />.</exception>
         /// <exception cref="InvalidOperationException">An attempt was made to send a message outside of a world.</exception>
         /// <exception cref="ArgumentException">The message is too long to send.</exception>
-        public Task SendMessageAsync(string message)
+        public ValueTask SendMessageAsync(string message)
         {
             if (message is null!)
-                return Task.FromException<ArgumentNullException>(new ArgumentNullException(nameof(message)));
+                return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(message)));
 
             lock (Lock)
             {
@@ -816,14 +816,14 @@ namespace VpNet
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
-                        return ThrowHelper.NotInWorldExceptionAsync();
+                        return ValueTask.FromException(ThrowHelper.NotInWorldException());
 
                     case ReasonCode.StringTooLong:
-                        return ThrowHelper.StringTooLongExceptionAsync(nameof(message));
+                        return ValueTask.FromException(ThrowHelper.StringTooLongException(nameof(message)));
                 }
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         internal TaskCompletionSource<ReasonCode> AddJoinCompletionSource(int reference)

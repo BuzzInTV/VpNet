@@ -64,10 +64,10 @@ namespace VpNet.Entities
         ///     The target avatar which will receive the event, or <see langword="null" /> to broadcast to every avatar.
         /// </param>
         /// <exception cref="InvalidOperationException"><paramref name="target" /> is the client's current avatar.</exception>
-        public Task ClickAsync(Vector3d? position = null, VirtualParadiseAvatar target = null)
+        public ValueTask ClickAsync(Vector3d? position = null, VirtualParadiseAvatar target = null)
         {
             if (target == Client.CurrentAvatar)
-                return ThrowHelper.CannotUseSelfExceptionAsync();
+                return ValueTask.FromException(ThrowHelper.CannotUseSelfException());
 
             lock (Client.Lock)
             {
@@ -77,7 +77,7 @@ namespace VpNet.Entities
                 vp_object_click(Client.NativeInstanceHandle, Id, session, x, y, z);
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace VpNet.Entities
         /// </summary>
         /// <exception cref="InvalidOperationException">The client is not connected to a world.</exception>
         /// <exception cref="ObjectNotFoundException">The object does not exist.</exception>
-        public Task DeleteAsync()
+        public ValueTask DeleteAsync()
         {
             lock (Client.Lock)
             {
@@ -94,14 +94,14 @@ namespace VpNet.Entities
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
-                        return ThrowHelper.NotInWorldExceptionAsync();
+                        return ValueTask.FromException(ThrowHelper.NotInWorldException());
 
                     case ReasonCode.ObjectNotFound:
-                        return ThrowHelper.ObjectNotFoundExceptionAsync();
+                        return ValueTask.FromException(ThrowHelper.ObjectNotFoundException());
                 }
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace VpNet
         /// <param name="location">
         ///     Optional. The target location of the join. Defaults to the client's current avatar location.
         /// </param>
-        public Task AcceptAsync(Location? location = null)
+        public ValueTask AcceptAsync(Location? location = null)
         {
             location ??= _client.CurrentAvatar.Location;
             string worldName = location.Value.World.Name;
@@ -58,17 +58,17 @@ namespace VpNet
             lock (_client.Lock)
                 Native.vp_join_accept(_client.NativeInstanceHandle, _requestId, worldName, x, y, z, (float)yaw, (float)pitch);
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
         ///     Declines this join request.
         /// </summary>
-        public Task DeclineAsync()
+        public ValueTask DeclineAsync()
         {
             lock (_client.Lock) Native.vp_join_decline(_client.NativeInstanceHandle, _requestId);
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <inheritdoc />

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using VpNet.EventData;
 
@@ -31,12 +31,12 @@ namespace VpNet.IntegrationTests
 
         private static Task ClientOnAvatarJoined(VirtualParadiseClient sender, AvatarJoinedEventArgs args)
         {
-            return args.Avatar.SendConsoleMessageAsync("greetings", $"Welcome to {s_client.CurrentWorld.Name}, {args.Avatar.Name}.");
+            return args.Avatar.SendConsoleMessageAsync("greetings", $"Welcome to {s_client.CurrentWorld.Name}, {args.Avatar.Name}.").AsTask();
         }
 
         private static Task ClientOnAvatarLeft(VirtualParadiseClient sender, AvatarLeftEventArgs args)
         {
-            return sender.BroadcastConsoleMessageAsync($"{args.Avatar.Name} has left {s_client.CurrentWorld.Name}");
+            return sender.BroadcastConsoleMessageAsync($"{args.Avatar.Name} has left {s_client.CurrentWorld.Name}").AsTask();
         }
     }
 }

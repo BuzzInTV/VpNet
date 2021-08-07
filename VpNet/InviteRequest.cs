@@ -59,12 +59,12 @@ namespace VpNet
         /// <param name="suppressTeleport">
         ///     If <see langword="true" />, the client's avatar will not teleport to the requested location automatically.
         /// </param>
-        public Task AcceptAsync(bool suppressTeleport = false)
+        public ValueTask AcceptAsync(bool suppressTeleport = false)
         {
             lock (_client.Lock) Native.vp_invite_accept(_client.NativeInstanceHandle, _requestId);
 
             if (suppressTeleport)
-                return Task.CompletedTask;
+                return ValueTask.CompletedTask;
 
             return _client.CurrentAvatar.TeleportAsync(Location);
         }
@@ -72,11 +72,11 @@ namespace VpNet
         /// <summary>
         ///     Declines this invite request.
         /// </summary>
-        public Task DeclineAsync()
+        public ValueTask DeclineAsync()
         {
             lock (_client.Lock) Native.vp_invite_decline(_client.NativeInstanceHandle, _requestId);
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <inheritdoc />

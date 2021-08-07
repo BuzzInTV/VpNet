@@ -90,10 +90,10 @@ namespace VpNet.Entities
         ///     -or-
         ///     <para>An attempt was made to click an avatar outside of a world.</para>
         /// </exception>
-        public Task ClickAsync(Vector3d? clickPoint = null)
+        public ValueTask ClickAsync(Vector3d? clickPoint = null)
         {
             if (this == _client.CurrentAvatar)
-                return ThrowHelper.CannotUseSelfExceptionAsync();
+                return ValueTask.FromException(ThrowHelper.CannotUseSelfException());
 
             clickPoint ??= Location.Position;
             (double x, double y, double z) = clickPoint.Value;
@@ -108,10 +108,10 @@ namespace VpNet.Entities
 
                 var reason = (ReasonCode)vp_avatar_click(handle, Session);
                 if (reason == ReasonCode.NotInWorld)
-                    return ThrowHelper.NotInWorldExceptionAsync();
+                    return ValueTask.FromException(ThrowHelper.NotInWorldException());
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace VpNet.Entities
         ///     -or-
         ///     <para>The action cannot be performed outside of a world.</para>
         /// </exception>
-        public Task SendConsoleMessageAsync(string message, FontStyle style = FontStyle.Regular, Color? color = null)
+        public ValueTask SendConsoleMessageAsync(string message, FontStyle style = FontStyle.Regular, Color? color = null)
         {
             return SendConsoleMessageAsync(string.Empty, message, style, color);
         }
@@ -195,15 +195,15 @@ namespace VpNet.Entities
         ///     -or-
         ///     <para>The action cannot be performed outside of a world.</para>
         /// </exception>
-        public Task SendConsoleMessageAsync(string name, string message, FontStyle style = FontStyle.Regular, Color? color = null)
+        public ValueTask SendConsoleMessageAsync(string name, string message, FontStyle style = FontStyle.Regular, Color? color = null)
         {
             name ??= string.Empty;
 
             if (message is null)
-                return ThrowHelper.ArgumentNullExceptionAsync(nameof(message));
+                return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(message)));
 
             if (this == _client.CurrentAvatar)
-                return ThrowHelper.CannotUseSelfExceptionAsync();
+                return ValueTask.FromException(ThrowHelper.CannotUseSelfException());
 
             (byte r, byte g, byte b) = color ?? Color.Black;
 
@@ -214,14 +214,14 @@ namespace VpNet.Entities
                 switch (reason)
                 {
                     case ReasonCode.NotInWorld:
-                        return ThrowHelper.NotInWorldExceptionAsync();
+                        return ValueTask.FromException(ThrowHelper.NotInWorldException());
 
                     case ReasonCode.StringTooLong:
-                        return ThrowHelper.StringTooLongExceptionAsync(nameof(message));
+                        return ValueTask.FromException(ThrowHelper.StringTooLongException(nameof(message)));
                 }
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
@@ -231,27 +231,27 @@ namespace VpNet.Entities
         /// <param name="target">The URL target. See <see cref="UriTarget" /> for more information.</param>
         /// <exception cref="InvalidOperationException">The action cannot be performed on the client's current avatar.</exception>
         /// <exception cref="ArgumentNullException"><paramref name="uri" /> is <see langword="null" />.</exception>
-        public Task SendUriAsync(Uri uri, UriTarget target = UriTarget.Browser)
+        public ValueTask SendUriAsync(Uri uri, UriTarget target = UriTarget.Browser)
         {
             if (this == _client.CurrentAvatar)
-                return ThrowHelper.CannotUseSelfExceptionAsync();
+                return ValueTask.FromException(ThrowHelper.CannotUseSelfException());
 
             if (uri is null)
-                return ThrowHelper.ArgumentNullExceptionAsync(nameof(uri));
+                return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(uri)));
 
             lock (_client.Lock)
             {
                 vp_url_send(_client.NativeInstanceHandle, Session, uri.ToString(), target);
             }
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         /// <summary>
         ///     Teleports the avatar to a new position within the current world.
         /// </summary>
         /// <param name="position">The position to which this avatar should be teleported.</param>
-        public Task TeleportAsync(Vector3d position)
+        public ValueTask TeleportAsync(Vector3d position)
         {
             var location = new Location(Location.World, position, Location.Rotation);
             return TeleportAsync(location);
@@ -262,7 +262,7 @@ namespace VpNet.Entities
         /// </summary>
         /// <param name="position">The position to which this avatar should be teleported.</param>
         /// <param name="rotation">The rotation to which this avatar should be teleported</param>
-        public Task TeleportAsync(Vector3d position, Quaternion rotation)
+        public ValueTask TeleportAsync(Vector3d position, Quaternion rotation)
         {
             var location = new Location(Location.World, position, rotation);
             return TeleportAsync(location);
@@ -272,7 +272,7 @@ namespace VpNet.Entities
         ///     Teleports this avatar to a new location, which may or may not be a new world.
         /// </summary>
         /// <param name="location">The location to which this avatar should be teleported.</param>
-        public async Task TeleportAsync(Location location)
+        public async ValueTask TeleportAsync(Location location)
         {
             var isSelf = this == _client.CurrentAvatar;
             var isNewWorld = location.World != Location.World;

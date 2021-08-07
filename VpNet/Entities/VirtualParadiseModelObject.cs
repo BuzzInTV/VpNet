@@ -45,7 +45,7 @@ namespace VpNet.Entities
         ///     -or-
         ///     <para><see cref="VirtualParadiseModelObjectBuilder.Owner" /> was assigned.</para>
         /// </exception>
-        public async Task ModifyAsync(Action<VirtualParadiseModelObjectBuilder> action)
+        public async ValueTask ModifyAsync(Action<VirtualParadiseModelObjectBuilder> action)
         {
             if (action is null) ThrowHelper.ThrowArgumentNullException(nameof(action));
 

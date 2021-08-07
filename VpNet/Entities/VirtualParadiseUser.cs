@@ -102,7 +102,7 @@ namespace VpNet.Entities
         /// <param name="location">
         ///     The invitation location. If <see langword="null" />, the client's current location is used.
         /// </param>
-        public async Task<InviteResponse> InviteAsync(Location? location = null)
+        public async ValueTask<InviteResponse> InviteAsync(Location? location = null)
         {
             // ReSharper disable once InconsistentlySynchronizedField
             location ??= _client.CurrentAvatar.Location;
@@ -143,7 +143,7 @@ namespace VpNet.Entities
         /// <returns>The result of the request.</returns>
         /// <exception cref="UserNotFoundException">This user is invalid and cannot be joined.</exception>
         /// <exception cref="InvalidOperationException">An unexpected error occurred trying to join the user.</exception>
-        public async Task<JoinResult> JoinAsync(bool suppressTeleport = false)
+        public async ValueTask<JoinResult> JoinAsync(bool suppressTeleport = false)
         {
             // ReSharper disable InconsistentlySynchronizedField
             IntPtr handle = _client.NativeInstanceHandle;
