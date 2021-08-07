@@ -63,6 +63,17 @@ namespace VpNet.Entities
         }
 
         /// <inheritdoc />
+        protected internal override void ExtractFromOther(VirtualParadiseObject virtualParadiseObject)
+        {
+            if (virtualParadiseObject is not VirtualParadiseModelObject model)
+                return;
+
+            Action = model.Action;
+            Description = model.Description;
+            Model = model.Model;
+        }
+
+        /// <inheritdoc />
         protected internal override void ExtractFromInstance(IntPtr handle)
         {
             Action = vp_string(handle, StringAttribute.ObjectAction);

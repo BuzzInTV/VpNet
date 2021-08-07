@@ -24,6 +24,15 @@ namespace VpNet.Entities
         /// <value>The path in this object.</value>
         public VirtualParadisePath Path { get; set; }
 
+        /// <inheritdoc />
+        protected internal override void ExtractFromOther(VirtualParadiseObject virtualParadiseObject)
+        {
+            if (virtualParadiseObject is not VirtualParadisePathObject path)
+                return;
+
+            Path = (VirtualParadisePath)path.Path.Clone();
+        }
+
         protected override void ExtractFromData(ReadOnlySpan<byte> data)
         {
             Span<char> chars = stackalloc char[data.Length];

@@ -157,12 +157,7 @@ namespace VpNet
             var virtualParadiseObject = await ExtractObjectAsync(sender);
             var cell = virtualParadiseObject.Location.Cell;
 
-            _objects.AddOrUpdate(virtualParadiseObject.Id, virtualParadiseObject, (_, o) =>
-            {
-                o.Location = virtualParadiseObject.Location;
-                o.ExtractFromInstance(sender);
-                return o;
-            });
+            virtualParadiseObject = AddOrUpdateObject(virtualParadiseObject);
 
             if (session == 0)
             {

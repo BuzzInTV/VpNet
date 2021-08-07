@@ -202,6 +202,24 @@ namespace VpNet.Entities
         [SerializationKey("texture")]
         public string Texture { get; private set; }
 
+        /// <inheritdoc />
+        protected internal override void ExtractFromOther(VirtualParadiseObject virtualParadiseObject)
+        {
+            if (virtualParadiseObject is not VirtualParadiseParticleEmitterObject emitter)
+                return;
+
+            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+            PropertyInfo[] properties = typeof(VirtualParadiseParticleEmitterObject).GetProperties(bindingFlags);
+
+            foreach (var property in properties)
+            {
+                if (property.GetCustomAttribute<SerializationKeyAttribute>() is null)
+                    continue;
+
+                property.SetValue(this, property.GetValue(emitter));
+            }
+        }
+
         protected override void ExtractFromData(ReadOnlySpan<byte> data)
         {
 #pragma warning disable 612

@@ -112,7 +112,7 @@ namespace VpNet
         /// <summary>
         ///     Occurs when an avatar has clicked an object.
         /// </summary>
-        public event AsyncEventHandler<ObjectClickedEventArgs> ObjectClicked; 
+        public event AsyncEventHandler<ObjectClickedEventArgs> ObjectClicked;
 
         /// <summary>
         ///     Occurs when an object has been created.
@@ -566,7 +566,7 @@ namespace VpNet
         {
             if (_objects.TryGetValue(id, out var virtualParadiseObject))
                 return virtualParadiseObject;
-            
+
             ReasonCode reason;
 
             if (!_objectCompletionSources.TryGetValue(id, out var taskCompletionSource))
@@ -863,6 +863,16 @@ namespace VpNet
                 existing.LastLogin = user.LastLogin;
                 existing.OnlineTime = user.OnlineTime;
                 existing.RegistrationTime = user.RegistrationTime;
+                return existing;
+            });
+        }
+
+        private VirtualParadiseObject AddOrUpdateObject(VirtualParadiseObject obj)
+        {
+            return _objects.AddOrUpdate(obj.Id, obj, (_, existing) =>
+            {
+                existing ??= obj;
+                existing.ExtractFromOther(obj);
                 return existing;
             });
         }

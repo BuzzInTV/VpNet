@@ -128,6 +128,12 @@ namespace VpNet.Entities
         /// <inheritdoc />
         public override int GetHashCode() => HashCode.Combine(Location.World, Id);
 
+        protected internal virtual void ExtractFromOther(VirtualParadiseObject virtualParadiseObject)
+        {
+            Location = virtualParadiseObject.Location;
+            Owner = virtualParadiseObject.Owner;
+        }
+
         protected internal virtual void ExtractFromInstance(IntPtr handle)
         {
             Span<byte> data = Span<byte>.Empty;
