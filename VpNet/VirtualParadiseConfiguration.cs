@@ -26,6 +26,7 @@ namespace VpNet
             if (configuration.Application is ({ } name, { } version))
                 Application = new Application(name, version);
 
+            AutoQuery = configuration.AutoQuery;
             BotName = new string(configuration.BotName);
             Password = new string(configuration.Password);
             Username = new string(configuration.Username);
