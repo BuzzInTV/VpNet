@@ -195,6 +195,8 @@ namespace VpNet
                 virtualParadiseObject = null;
             }
 
+            _objects.TryRemove(objectId, out var _);
+
             var args = new ObjectDeletedEventArgs(avatar, objectId, virtualParadiseObject);
             RaiseEvent(ObjectDeleted, args);
         }
