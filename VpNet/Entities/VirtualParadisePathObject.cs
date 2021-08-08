@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -91,7 +91,7 @@ namespace VpNet.Entities
 
             for (index += 1; index < chars.Length; index++)
             {
-                if (chars[index] == ' ')
+                if (char.IsWhiteSpace(chars[index]))
                 {
                     if (offset is null)
                     {

@@ -11,35 +11,35 @@ namespace VpNet.Extensions
         {
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
-            return double.Parse(chars);
+            return double.Parse(chars.Trim());
         }
 
         public static int ToInt32(this ReadOnlySpan<byte> value)
         {
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
-            return int.Parse(chars);
+            return int.Parse(chars.Trim());
         }
 
         public static float ToSingle(this ReadOnlySpan<byte> value)
         {
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
-            return float.Parse(chars);
+            return float.Parse(chars.Trim());
         }
 
         public static Vector3 ToVector3(this ReadOnlySpan<byte> value)
         {
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
-            return ToVector3(chars);
+            return ToVector3(chars.Trim());
         }
 
         public static Vector3d ToVector3d(this ReadOnlySpan<byte> value)
         {
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
-            return ToVector3d(chars);
+            return ToVector3d(chars.Trim());
         }
 
         public static Vector3 ToVector3(this ReadOnlySpan<char> value)
