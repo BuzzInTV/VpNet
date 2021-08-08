@@ -1,4 +1,6 @@
-﻿namespace VpNet
+﻿using VpNet.Internal.Attributes;
+
+namespace VpNet
 {
     /// <summary>
     ///     An enumeration of particle types.
@@ -6,8 +8,13 @@
     public enum ParticleType
     {
         Sprite,
+
         Facer,
+
+        [SerializationKey("flat_panel")]
         FlatPanel,
-        DoubleFlatPanel
+
+        [SerializationKey("double_flat_panel")]
+        DoubleSidedFlatPanel
     }
 }
