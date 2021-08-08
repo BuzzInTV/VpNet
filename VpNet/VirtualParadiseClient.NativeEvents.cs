@@ -30,7 +30,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.UserAttributes, OnUserAttributesNativeEvent);
             SetNativeEvent(NativeEvent.QueryCellEnd, OnQueryCellEndNativeEvent);
             // SetNativeEvent(NativeEvent.TerrainNode, OnTerrainNodeNativeEvent);
-            // SetNativeEvent(NativeEvent.AvatarClick, OnAvatarClickNativeEvent);
+            SetNativeEvent(NativeEvent.AvatarClick, OnAvatarClickNativeEvent);
             // SetNativeEvent(NativeEvent.Teleport, OnTeleportNativeEvent);
             // SetNativeEvent(NativeEvent.Url, OnUrlNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectBumpBegin, OnObjectBumpBeginNativeEvent);
@@ -259,6 +259,28 @@ namespace VpNet
 
             if (_cellChannels.TryRemove(cell, out var channel))
                 channel.Writer.TryComplete();
+        }
+
+        private void OnAvatarClickNativeEvent(IntPtr sender)
+        {
+            int session, clickedSession;
+            Vector3d clickPoint;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+                clickedSession = vp_int(sender, IntegerAttribute.ClickedSession);
+
+                double x = vp_double(sender, FloatAttribute.ClickHitX);
+                double y = vp_double(sender, FloatAttribute.ClickHitY);
+                double z = vp_double(sender, FloatAttribute.ClickHitZ);
+                clickPoint = new Vector3d(x, y, z);
+            }
+
+            var avatar = GetAvatar(session);
+            var clickedAvatar = GetAvatar(clickedSession);
+            var args = new AvatarClickedEventArgs(avatar, clickedAvatar, clickPoint);
+            RaiseEvent(AvatarClicked, args);
         }
 
         private async void OnJoinNativeEvent(IntPtr sender)

@@ -75,6 +75,11 @@ namespace VpNet
         }
 
         /// <summary>
+        ///     Occurs when an avatar has clicked another avatar.
+        /// </summary>
+        public event AsyncEventHandler<AvatarClickedEventArgs> AvatarClicked;
+
+        /// <summary>
         ///     Occurs when an avatar has entered the vicinity of the client.
         /// </summary>
         public event AsyncEventHandler<AvatarJoinedEventArgs> AvatarJoined;
