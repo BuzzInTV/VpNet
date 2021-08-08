@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
@@ -56,7 +56,7 @@ namespace VpNet.Entities
 
             buffer.Clear();
 
-            if (version != 0)
+            if (version != 1)
                 throw new NotSupportedException($"Unsupported path version {version}");
 
             // path name
