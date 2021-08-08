@@ -62,7 +62,7 @@ namespace VpNet
 
         private void OnWorldListNativeCallback(IntPtr sender, ReasonCode reason, int reference)
         {
-            _worldListChannel.Writer.Complete();
+            _worldListChannel?.Writer.Complete();
         }
     }
 }
