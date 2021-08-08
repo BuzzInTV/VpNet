@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -485,7 +485,11 @@ namespace VpNet
 
             if (_configuration.AutoQuery)
             {
-                // TODO auto-query here
+                Task.Run(async () =>
+                {
+                    await foreach (VirtualParadiseObject virtualParadiseObject in EnumerateObjectsAsync(default, radius: size))
+                        AddOrUpdateObject(virtualParadiseObject);
+                });
             }
 
             return CurrentWorld;
@@ -876,6 +880,8 @@ namespace VpNet
 
         private VirtualParadiseObject AddOrUpdateObject(VirtualParadiseObject obj)
         {
+            if (obj is null) throw ThrowHelper.ArgumentNullException(nameof(obj));
+
             return _objects.AddOrUpdate(obj.Id, obj, (_, existing) =>
             {
                 existing ??= obj;
