@@ -1,4 +1,6 @@
-﻿namespace VpNet
+﻿using VpNet.Internal.Attributes;
+
+namespace VpNet
 {
     /// <summary>
     ///     An enumeration of particle blend modes.
@@ -13,6 +15,7 @@
         /// <summary>
         ///     Additive blending.
         /// </summary>
+        [SerializationKey("add")]
         Additive
     }
 }

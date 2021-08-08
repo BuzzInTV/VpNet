@@ -1,5 +1,8 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
+using System.Reflection;
+using VpNet.Internal.Attributes;
 
 namespace VpNet.Internal.ValueConverters
 {
@@ -9,7 +12,17 @@ namespace VpNet.Internal.ValueConverters
         /// <inheritdoc />
         public override void Deserialize(TextReader reader, out T result)
         {
-            result = Enum.Parse<T>(reader.ReadToEnd(), true);
+            string value = reader.ReadToEnd();
+            
+            var field = typeof(T).GetFields().FirstOrDefault(f => string.Equals(f.GetCustomAttribute<SerializationKeyAttribute>()?.Key, value));
+            if (field is not null)
+            {
+                result = (T)field.GetValue(Enum.GetValues<T>()[0])!;
+            }
+            else
+            {
+                result = Enum.Parse<T>(value, true);
+            }
         }
 
         /// <inheritdoc />
