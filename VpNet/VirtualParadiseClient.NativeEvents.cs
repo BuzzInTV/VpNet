@@ -25,8 +25,8 @@ namespace VpNet
             // SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSettingsChanged, OnWorldSettingsChangedNativeEvent);
             // SetNativeEvent(NativeEvent.Friend, OnFriendNativeEvent);
-            // SetNativeEvent(NativeEvent.WorldDisconnect, OnWorldDisconnectNativeEvent);
-            // SetNativeEvent(NativeEvent.UniverseDisconnect, OnUniverseDisconnectNativeEvent);
+            SetNativeEvent(NativeEvent.WorldDisconnect, OnWorldDisconnectNativeEvent);
+            SetNativeEvent(NativeEvent.UniverseDisconnect, OnUniverseDisconnectNativeEvent);
             SetNativeEvent(NativeEvent.UserAttributes, OnUserAttributesNativeEvent);
             SetNativeEvent(NativeEvent.QueryCellEnd, OnQueryCellEndNativeEvent);
             // SetNativeEvent(NativeEvent.TerrainNode, OnTerrainNodeNativeEvent);
@@ -214,6 +214,24 @@ namespace VpNet
 
             if (_worldListChannel is not null)
                 await _worldListChannel.Writer.WriteAsync(world);
+        }
+
+        private void OnUniverseDisconnectNativeEvent(IntPtr sender)
+        {
+            DisconnectReason reason;
+            lock (Lock) reason = (DisconnectReason)vp_int(sender, IntegerAttribute.DisconnectErrorCode);
+
+            var args = new DisconnectedEventArgs(reason);
+            RaiseEvent(UniverseServerDisconnected, args);
+        }
+
+        private void OnWorldDisconnectNativeEvent(IntPtr sender)
+        {
+            DisconnectReason reason;
+            lock (Lock) reason = (DisconnectReason)vp_int(sender, IntegerAttribute.DisconnectErrorCode);
+
+            var args = new DisconnectedEventArgs(reason);
+            RaiseEvent(WorldServerDisconnected, args);
         }
 
         private void OnUserAttributesNativeEvent(IntPtr sender)
