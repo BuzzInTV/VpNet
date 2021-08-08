@@ -125,6 +125,11 @@ namespace VpNet
         public event AsyncEventHandler<ObjectCreatedEventArgs> ObjectCreated;
 
         /// <summary>
+        ///     Occurs when an object has been deleted.
+        /// </summary>
+        public event AsyncEventHandler<ObjectDeletedEventArgs> ObjectDeleted;
+
+        /// <summary>
         ///     Occurs when the client has been disconnected from the world server.
         /// </summary>
         public event AsyncEventHandler<DisconnectedEventArgs> WorldServerDisconnected;

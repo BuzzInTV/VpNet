@@ -19,7 +19,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.AvatarDelete, OnAvatarDeleteNativeEvent);
             SetNativeEvent(NativeEvent.Object, OnObjectNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectChange, OnObjectChangeNativeEvent);
-            // SetNativeEvent(NativeEvent.ObjectDelete, OnObjectDeleteNativeEvent);
+            SetNativeEvent(NativeEvent.ObjectDelete, OnObjectDeleteNativeEvent);
             SetNativeEvent(NativeEvent.ObjectClick, OnObjectClickNativeEvent);
             SetNativeEvent(NativeEvent.WorldList, OnWorldListNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
@@ -170,6 +170,33 @@ namespace VpNet
                 var args = new ObjectCreatedEventArgs(avatar, virtualParadiseObject);
                 RaiseEvent(ObjectCreated, args);
             }
+        }
+
+        private async void OnObjectDeleteNativeEvent(IntPtr sender)
+        {
+            int objectId;
+            int session;
+
+            lock (Lock)
+            {
+                objectId = vp_int(sender, IntegerAttribute.ObjectId);
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+            }
+
+            var avatar = GetAvatar(session);
+            VirtualParadiseObject virtualParadiseObject;
+
+            try
+            {
+                virtualParadiseObject = await GetObjectAsync(objectId);
+            }
+            catch // any exception: we don't care about GetObject failing. ID is always available
+            {
+                virtualParadiseObject = null;
+            }
+
+            var args = new ObjectDeletedEventArgs(avatar, objectId, virtualParadiseObject);
+            RaiseEvent(ObjectDeleted, args);
         }
 
         private async void OnObjectClickNativeEvent(IntPtr sender)
