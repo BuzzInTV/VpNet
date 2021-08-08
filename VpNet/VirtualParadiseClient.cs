@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -465,7 +465,9 @@ namespace VpNet
                     throw new Exception($"Unknown error: {reason:D} ({reason:G})");
             }
 
-            int size = vp_int(NativeInstanceHandle, IntegerAttribute.WorldSize);
+            int size;
+            lock (Lock) size = vp_int(NativeInstanceHandle, IntegerAttribute.WorldSize);
+
             // await _worldSettingsCompletionSource.Task;
 
             CurrentWorld = await GetWorldAsync(worldName);
