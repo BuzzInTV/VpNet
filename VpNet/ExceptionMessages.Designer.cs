@@ -97,6 +97,15 @@ namespace VpNet {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to World name cannot be null or empty..
+        /// </summary>
+        internal static string WorldNameCannotBeEmpty {
+            get {
+                return ResourceManager.GetString("WorldNameCannotBeEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value must be 0.0 through 1.0..
         /// </summary>
         internal static string ZeroThroughOne {

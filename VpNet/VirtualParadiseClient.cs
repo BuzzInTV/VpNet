@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -669,8 +669,14 @@ namespace VpNet
         ///     A <see cref="VirtualParadiseWorld" /> whose name is equal to <paramref name="name" />, or <see langword="null" />
         ///     if no match was found.
         /// </returns>
+        /// <exception cref="ArgumentException">
+        ///     <paramref name="name" /> is <see langword="null" />, empty, or consists of only whitespace.
+        /// </exception>
         public async ValueTask<VirtualParadiseWorld> GetWorldAsync(string name)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException(ExceptionMessages.WorldNameCannotBeEmpty, nameof(name));
+
             await foreach (var world in EnumerateWorldsAsync())
             {
                 if (string.Equals(world.Name, name))

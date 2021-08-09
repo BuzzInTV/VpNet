@@ -37,4 +37,7 @@
     <data name="ZeroThroughOne" xml:space="preserve">
         <value>Value must be 0.0 through 1.0.</value>
     </data>
+    <data name="WorldNameCannotBeEmpty" xml:space="preserve">
+        <value>World name cannot be null or empty.</value>
+    </data>
 </root>
