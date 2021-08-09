@@ -31,7 +31,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.QueryCellEnd, OnQueryCellEndNativeEvent);
             // SetNativeEvent(NativeEvent.TerrainNode, OnTerrainNodeNativeEvent);
             SetNativeEvent(NativeEvent.AvatarClick, OnAvatarClickNativeEvent);
-            // SetNativeEvent(NativeEvent.Teleport, OnTeleportNativeEvent);
+            SetNativeEvent(NativeEvent.Teleport, OnTeleportNativeEvent);
             // SetNativeEvent(NativeEvent.Url, OnUrlNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectBumpBegin, OnObjectBumpBeginNativeEvent);
             // SetNativeEvent(NativeEvent.ObjectBumpEnd, OnObjectBumpEndNativeEvent);
@@ -328,6 +328,39 @@ namespace VpNet
             var clickedAvatar = GetAvatar(clickedSession);
             var args = new AvatarClickedEventArgs(avatar, clickedAvatar, clickPoint);
             RaiseEvent(AvatarClicked, args);
+        }
+
+        private async void OnTeleportNativeEvent(IntPtr sender)
+        {
+            int session;
+            string worldName;
+            Vector3d position;
+            Quaternion rotation;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+
+                double x = vp_double(sender, FloatAttribute.TeleportX);
+                double y = vp_double(sender, FloatAttribute.TeleportY);
+                double z = vp_double(sender, FloatAttribute.TeleportZ);
+                position = new Vector3d(x, y, z);
+
+                float yaw = vp_float(sender, FloatAttribute.TeleportYaw);
+                float pitch = vp_float(sender, FloatAttribute.TeleportPitch);
+                rotation = Quaternion.CreateFromYawPitchRoll(yaw, pitch, 0);
+
+                worldName = vp_string(sender, StringAttribute.TeleportWorld);
+            }
+
+            var world = string.IsNullOrWhiteSpace(worldName) ? CurrentWorld : await GetWorldAsync(worldName);
+            var location = new Location(world, position, rotation);
+            CurrentAvatar.Location = location;
+            CurrentWorld = world;
+
+            var avatar = GetAvatar(session);
+            var args = new TeleportedEventArgs(avatar, location);
+            RaiseEvent(Teleported, args);
         }
 
         private async void OnJoinNativeEvent(IntPtr sender)
