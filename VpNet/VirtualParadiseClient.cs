@@ -130,14 +130,14 @@ namespace VpNet
         public event AsyncEventHandler<ObjectDeletedEventArgs> ObjectDeleted;
 
         /// <summary>
-        ///     Occurs when the client has been disconnected from the world server.
-        /// </summary>
-        public event AsyncEventHandler<DisconnectedEventArgs> WorldServerDisconnected;
-
-        /// <summary>
         ///     Occurs when the client has been disconnected from the universe server.
         /// </summary>
         public event AsyncEventHandler<DisconnectedEventArgs> UniverseServerDisconnected;
+
+        /// <summary>
+        ///     Occurs when the client has been disconnected from the world server.
+        /// </summary>
+        public event AsyncEventHandler<DisconnectedEventArgs> WorldServerDisconnected;
 
         /// <summary>
         ///     Gets a read-only view of the avatars in the vicinity of this client.
