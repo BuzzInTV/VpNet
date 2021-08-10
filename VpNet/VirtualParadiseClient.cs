@@ -115,6 +115,11 @@ namespace VpNet
         public event AsyncEventHandler<MessageReceivedEventArgs> MessageReceived;
 
         /// <summary>
+        ///     Occurs when a bump phase has changed for an object.
+        /// </summary>
+        public event AsyncEventHandler<ObjectBumpEventArgs> ObjectBump; 
+
+        /// <summary>
         ///     Occurs when an avatar has clicked an object.
         /// </summary>
         public event AsyncEventHandler<ObjectClickedEventArgs> ObjectClicked;

@@ -33,8 +33,8 @@ namespace VpNet
             SetNativeEvent(NativeEvent.AvatarClick, OnAvatarClickNativeEvent);
             SetNativeEvent(NativeEvent.Teleport, OnTeleportNativeEvent);
             // SetNativeEvent(NativeEvent.Url, OnUrlNativeEvent);
-            // SetNativeEvent(NativeEvent.ObjectBumpBegin, OnObjectBumpBeginNativeEvent);
-            // SetNativeEvent(NativeEvent.ObjectBumpEnd, OnObjectBumpEndNativeEvent);
+            SetNativeEvent(NativeEvent.ObjectBumpBegin, OnObjectBumpBeginNativeEvent);
+            SetNativeEvent(NativeEvent.ObjectBumpEnd, OnObjectBumpEndNativeEvent);
             // SetNativeEvent(NativeEvent.TerrainNodeChanged, OnTerrainNodeChangedNativeEvent);
             SetNativeEvent(NativeEvent.Join, OnJoinNativeEvent);
             SetNativeEvent(NativeEvent.Invite, OnInviteNativeEvent);
@@ -359,6 +359,42 @@ namespace VpNet
             var avatar = GetAvatar(session);
             var args = new TeleportedEventArgs(avatar, location);
             RaiseEvent(Teleported, args);
+        }
+
+        private async void OnObjectBumpEndNativeEvent(IntPtr sender)
+        {
+            int session;
+            int objectId;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = vp_int(sender, IntegerAttribute.ObjectId);
+            }
+
+            var avatar = GetAvatar(session);
+            var vpObject = await GetObjectAsync(objectId);
+
+            var args = new ObjectBumpEventArgs(avatar, vpObject, BumpPhase.End);
+            RaiseEvent(ObjectBump, args);
+        }
+
+        private async void OnObjectBumpBeginNativeEvent(IntPtr sender)
+        {
+            int session;
+            int objectId;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+                objectId = vp_int(sender, IntegerAttribute.ObjectId);
+            }
+
+            var avatar = GetAvatar(session);
+            var vpObject = await GetObjectAsync(objectId);
+
+            var args = new ObjectBumpEventArgs(avatar, vpObject, BumpPhase.Begin);
+            RaiseEvent(ObjectBump, args);
         }
 
         private async void OnJoinNativeEvent(IntPtr sender)
