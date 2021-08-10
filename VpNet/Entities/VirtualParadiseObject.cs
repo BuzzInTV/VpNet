@@ -31,7 +31,7 @@ namespace VpNet.Entities
         /// </summary>
         /// <value>The location of this object.</value>
         public Location Location { get; internal set; }
-        
+
         /// <summary>
         ///     Gets the owner of this object.
         /// </summary>
@@ -55,6 +55,50 @@ namespace VpNet.Entities
         /// <param name="right">The second object to compare.</param>
         /// <returns><see langword="true" /> if the two objects are not equal; otherwise, <see langword="false" />.</returns>
         public static bool operator !=(VirtualParadiseObject left, VirtualParadiseObject right) => !Equals(left, right);
+
+        /// <summary>
+        ///     Performs a bump on this object.
+        /// </summary>
+        /// <param name="phase">
+        ///     The bump phase. If this value is <see langword="null" />, both <see cref="BumpPhase.Begin" /> and
+        ///     <see cref="BumpPhase.End" /> are sent in succession.
+        /// </param>
+        /// <param name="target">
+        ///     The target avatar to receive the event. If this value is <see langword="null" />, the bump will be broadcast to
+        ///     all avatars in the world.
+        /// </param>
+        public async ValueTask BumpAsync(BumpPhase? phase = null, VirtualParadiseAvatar? target = null)
+        {
+            int session = target?.Session ?? 0;
+
+            ValueTask SendBegin()
+            {
+                lock (Client.Lock) vp_object_bump_begin(Client.NativeInstanceHandle, Id, session);
+                return ValueTask.CompletedTask;
+            }
+
+            ValueTask SendEnd()
+            {
+                lock (Client.Lock) vp_object_bump_end(Client.NativeInstanceHandle, Id, session);
+                return ValueTask.CompletedTask;
+            }
+
+            switch (phase)
+            {
+                case BumpPhase.Begin:
+                    await SendBegin();
+                    break;
+
+                case BumpPhase.End:
+                    await SendEnd();
+                    break;
+
+                case null:
+                    await SendBegin();
+                    await SendEnd();
+                    break;
+            }
+        }
 
         /// <summary>
         ///     Clicks the object.
