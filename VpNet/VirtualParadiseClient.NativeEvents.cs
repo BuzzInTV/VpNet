@@ -355,8 +355,6 @@ namespace VpNet
 
             var world = string.IsNullOrWhiteSpace(worldName) ? CurrentWorld : await GetWorldAsync(worldName);
             var location = new Location(world, position, rotation);
-            CurrentAvatar.Location = location;
-            CurrentWorld = world;
 
             var avatar = GetAvatar(session);
             var args = new TeleportedEventArgs(avatar, location);

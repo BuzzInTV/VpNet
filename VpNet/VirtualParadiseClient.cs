@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -130,7 +130,7 @@ namespace VpNet
         public event AsyncEventHandler<ObjectDeletedEventArgs> ObjectDeleted;
 
         /// <summary>
-        ///     Occurs when an avatar has forced this client to teleport.
+        ///     Occurs when an avatar has requested this client to teleport.
         /// </summary>
         public event AsyncEventHandler<TeleportedEventArgs> Teleported;
 
