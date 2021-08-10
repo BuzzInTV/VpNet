@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
@@ -174,7 +174,7 @@ namespace VpNet
         ///     The world to which this client is currently connected, or <see langword="null" /> if this client is not currently
         ///     in a world.
         /// </value>
-        public VirtualParadiseWorld CurrentWorld { get; internal set; }
+        public VirtualParadiseWorld CurrentWorld => CurrentAvatar?.Location.World;
 
         /// <summary>
         ///     Sends a console message to all avatars in the world.
@@ -490,8 +490,8 @@ namespace VpNet
 
             // await _worldSettingsCompletionSource.Task;
 
-            CurrentWorld = await GetWorldAsync(worldName);
-            CurrentWorld.Size = new Size(size, size);
+            var world = await GetWorldAsync(worldName);
+            world.Size = new Size(size, size);
             // CurrentWorld.Settings = WorldSettingsConverter.FromDictionary(_worldSettings);
             // _worldSettings.Clear();
 
@@ -499,7 +499,7 @@ namespace VpNet
             {
                 Application = _configuration.Application,
                 Name = _configuration.BotName,
-                Location = new Location(CurrentWorld, Vector3d.Zero, Quaternion.Identity),
+                Location = new Location(world, Vector3d.Zero, Quaternion.Identity),
                 User = CurrentUser
             };
 
