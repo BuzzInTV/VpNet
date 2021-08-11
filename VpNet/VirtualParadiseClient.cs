@@ -117,7 +117,12 @@ namespace VpNet
         /// <summary>
         ///     Occurs when a bump phase has changed for an object.
         /// </summary>
-        public event AsyncEventHandler<ObjectBumpEventArgs> ObjectBump; 
+        public event AsyncEventHandler<ObjectBumpEventArgs> ObjectBump;
+
+        /// <summary>
+        ///     Occurs when an object has been changed.
+        /// </summary>
+        public event AsyncEventHandler<ObjectChangedEventArgs> ObjectChanged; 
 
         /// <summary>
         ///     Occurs when an avatar has clicked an object.

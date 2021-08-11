@@ -18,7 +18,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.AvatarChange, OnAvatarChangeNativeEvent);
             SetNativeEvent(NativeEvent.AvatarDelete, OnAvatarDeleteNativeEvent);
             SetNativeEvent(NativeEvent.Object, OnObjectNativeEvent);
-            // SetNativeEvent(NativeEvent.ObjectChange, OnObjectChangeNativeEvent);
+            SetNativeEvent(NativeEvent.ObjectChange, OnObjectChangeNativeEvent);
             SetNativeEvent(NativeEvent.ObjectDelete, OnObjectDeleteNativeEvent);
             SetNativeEvent(NativeEvent.ObjectClick, OnObjectClickNativeEvent);
             SetNativeEvent(NativeEvent.WorldList, OnWorldListNativeEvent);
@@ -170,6 +170,36 @@ namespace VpNet
                 var args = new ObjectCreatedEventArgs(avatar, virtualParadiseObject);
                 RaiseEvent(ObjectCreated, args);
             }
+        }
+
+        private async void OnObjectChangeNativeEvent(IntPtr sender)
+        {
+            int objectId;
+            int session;
+
+            lock (Lock)
+            {
+                objectId = vp_int(sender, IntegerAttribute.ObjectId);
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+            }
+
+            var avatar = GetAvatar(session);
+
+            VirtualParadiseObject cachedObject = null;
+
+            if (_objects.TryGetValue(objectId, out var virtualParadiseObject))
+            {
+                cachedObject = await ExtractObjectAsync(sender); // data discarded, but used to pull type
+                cachedObject.ExtractFromOther(virtualParadiseObject);
+
+                virtualParadiseObject.ExtractFromInstance(sender); // update existing instance
+            }
+
+            if (virtualParadiseObject is not null)
+                AddOrUpdateObject(virtualParadiseObject);
+
+            var args = new ObjectChangedEventArgs(avatar, cachedObject, virtualParadiseObject);
+            RaiseEvent(ObjectChanged, args);
         }
 
         private async void OnObjectDeleteNativeEvent(IntPtr sender)

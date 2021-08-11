@@ -67,7 +67,7 @@ namespace VpNet.Entities
         ///     The target avatar to receive the event. If this value is <see langword="null" />, the bump will be broadcast to
         ///     all avatars in the world.
         /// </param>
-        public async ValueTask BumpAsync(BumpPhase? phase = null, VirtualParadiseAvatar? target = null)
+        public async ValueTask BumpAsync(BumpPhase? phase = null, VirtualParadiseAvatar target = null)
         {
             int session = target?.Session ?? 0;
 
