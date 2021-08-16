@@ -20,7 +20,7 @@ namespace VpNet.NativeApi
         UserOnlineTime,
         UserLastLogin,
         [Obsolete] FriendId,
-        [Obsolete] FriendUserId,
+        FriendUserId,
         FriendOnline,
         MyUserId,
         ProxyType,

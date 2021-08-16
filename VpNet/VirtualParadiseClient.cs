@@ -36,6 +36,8 @@ namespace VpNet
         private readonly ConcurrentDictionary<NativeCallback, NativeCallbackHandler> _nativeCallbackHandlers = new();
         private readonly ConcurrentDictionary<NativeEvent, NativeEventHandler> _nativeEventHandlers = new();
 
+        private readonly ConcurrentDictionary<int, VirtualParadiseUser> _friends = new();
+
         private readonly Dictionary<int, TaskCompletionSource<ReasonCode>> _inviteCompletionSources = new();
         private readonly Dictionary<int, TaskCompletionSource<ReasonCode>> _joinCompletionSources = new();
 
@@ -122,7 +124,7 @@ namespace VpNet
         /// <summary>
         ///     Occurs when an object has been changed.
         /// </summary>
-        public event AsyncEventHandler<ObjectChangedEventArgs> ObjectChanged; 
+        public event AsyncEventHandler<ObjectChangedEventArgs> ObjectChanged;
 
         /// <summary>
         ///     Occurs when an avatar has clicked an object.
@@ -185,6 +187,15 @@ namespace VpNet
         ///     in a world.
         /// </value>
         public VirtualParadiseWorld CurrentWorld => CurrentAvatar?.Location.World;
+
+        /// <summary>
+        ///     Gets a read-only view of the friends of this client's current user.
+        /// </summary>
+        /// <value>
+        ///     A <see cref="IReadOnlyCollection{T}" /> of <see cref="VirtualParadiseUser" /> values representing this user's
+        ///     friends.
+        /// </value>
+        public IReadOnlyCollection<VirtualParadiseUser> Friends => _friends.Values.ToArray();
 
         /// <summary>
         ///     Sends a console message to all avatars in the world.
@@ -842,6 +853,7 @@ namespace VpNet
             }
 
             CurrentUser = await GetUserAsync(userId);
+            vp_friends_get(NativeInstanceHandle);
         }
 
         /// <summary>

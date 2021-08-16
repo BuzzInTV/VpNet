@@ -24,7 +24,7 @@ namespace VpNet
             SetNativeEvent(NativeEvent.WorldList, OnWorldListNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
             // SetNativeEvent(NativeEvent.WorldSettingsChanged, OnWorldSettingsChangedNativeEvent);
-            // SetNativeEvent(NativeEvent.Friend, OnFriendNativeEvent);
+            SetNativeEvent(NativeEvent.Friend, OnFriendNativeEvent);
             SetNativeEvent(NativeEvent.WorldDisconnect, OnWorldDisconnectNativeEvent);
             SetNativeEvent(NativeEvent.UniverseDisconnect, OnUniverseDisconnectNativeEvent);
             SetNativeEvent(NativeEvent.UserAttributes, OnUserAttributesNativeEvent);
@@ -275,13 +275,17 @@ namespace VpNet
                 await _worldListChannel.Writer.WriteAsync(world);
         }
 
-        private void OnUniverseDisconnectNativeEvent(IntPtr sender)
+        private async void OnFriendNativeEvent(IntPtr sender)
         {
-            DisconnectReason reason;
-            lock (Lock) reason = (DisconnectReason)vp_int(sender, IntegerAttribute.DisconnectErrorCode);
+            int userId;
 
-            var args = new DisconnectedEventArgs(reason);
-            RaiseEvent(UniverseServerDisconnected, args);
+            lock (Lock)
+            {
+                userId = vp_int(sender, IntegerAttribute.FriendUserId);
+            }
+
+            var user = await GetUserAsync(userId);
+            _friends.AddOrUpdate(userId, user, (_, _) => user);
         }
 
         private void OnWorldDisconnectNativeEvent(IntPtr sender)
@@ -291,6 +295,15 @@ namespace VpNet
 
             var args = new DisconnectedEventArgs(reason);
             RaiseEvent(WorldServerDisconnected, args);
+        }
+
+        private void OnUniverseDisconnectNativeEvent(IntPtr sender)
+        {
+            DisconnectReason reason;
+            lock (Lock) reason = (DisconnectReason)vp_int(sender, IntegerAttribute.DisconnectErrorCode);
+
+            var args = new DisconnectedEventArgs(reason);
+            RaiseEvent(UniverseServerDisconnected, args);
         }
 
         private void OnUserAttributesNativeEvent(IntPtr sender)
