@@ -20,6 +20,16 @@ namespace VpNet.EventData
         }
 
         /// <summary>
+        ///     Gets or sets a value indicating whether this teleport was accepted.
+        /// </summary>
+        /// <value>
+        ///     <see langword="true" /> if the teleport was accepted; otherwise, <see langword="false" />. Default value is
+        ///     <see langword="false" />.
+        /// </value>
+        /// <remarks>If a teleport is "accepted", the client will teleport to the requested location.</remarks>
+        public bool Accepted { get; set; }
+
+        /// <summary>
         ///     Gets the avatar which initiated the teleport.
         /// </summary>
         /// <value>The avatar which initiated the teleport.</value>
