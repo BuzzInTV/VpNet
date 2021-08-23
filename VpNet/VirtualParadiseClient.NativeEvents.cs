@@ -32,7 +32,7 @@ namespace VpNet
             // SetNativeEvent(NativeEvent.TerrainNode, OnTerrainNodeNativeEvent);
             SetNativeEvent(NativeEvent.AvatarClick, OnAvatarClickNativeEvent);
             SetNativeEvent(NativeEvent.Teleport, OnTeleportNativeEvent);
-            // SetNativeEvent(NativeEvent.Url, OnUrlNativeEvent);
+            SetNativeEvent(NativeEvent.Url, OnUrlNativeEvent);
             SetNativeEvent(NativeEvent.ObjectBumpBegin, OnObjectBumpBeginNativeEvent);
             SetNativeEvent(NativeEvent.ObjectBumpEnd, OnObjectBumpEndNativeEvent);
             // SetNativeEvent(NativeEvent.TerrainNodeChanged, OnTerrainNodeChangedNativeEvent);
@@ -420,6 +420,28 @@ namespace VpNet
 
             var args = new ObjectBumpEventArgs(avatar, vpObject, BumpPhase.End);
             RaiseEvent(ObjectBump, args);
+        }
+
+        private void OnUrlNativeEvent(IntPtr sender)
+        {
+            int session;
+            string url;
+            UriTarget target;
+
+            lock (Lock)
+            {
+                session = vp_int(sender, IntegerAttribute.AvatarSession);
+                url = vp_string(sender, StringAttribute.Url);
+                target = (UriTarget)vp_int(sender, IntegerAttribute.UrlTarget);
+            }
+
+            if (!Uri.IsWellFormedUriString(url, UriKind.Absolute))
+                return;
+
+            var avatar = GetAvatar(session);            
+            var uri = new Uri(url);
+            var args = new UriReceivedEventArgs(uri, target, avatar);
+            RaiseEvent(UriReceived, args);
         }
 
         private async void OnObjectBumpBeginNativeEvent(IntPtr sender)

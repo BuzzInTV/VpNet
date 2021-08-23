@@ -152,6 +152,11 @@ namespace VpNet
         public event AsyncEventHandler<DisconnectedEventArgs> UniverseServerDisconnected;
 
         /// <summary>
+        ///     Occurs when an avatar has sent a URI to this client.
+        /// </summary>
+        public event AsyncEventHandler<UriReceivedEventArgs> UriReceived;
+
+        /// <summary>
         ///     Occurs when the client has been disconnected from the world server.
         /// </summary>
         public event AsyncEventHandler<DisconnectedEventArgs> WorldServerDisconnected;
