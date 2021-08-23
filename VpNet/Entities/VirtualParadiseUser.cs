@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using VpNet.Exceptions;
 using VpNet.Extensions;
 using VpNet.Internal;
+using VpNet.Internal.NativeAttributes;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 

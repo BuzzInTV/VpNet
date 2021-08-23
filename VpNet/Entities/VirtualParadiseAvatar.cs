@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Threading.Tasks;
 using VpNet.Extensions;
 using VpNet.Internal;
+using VpNet.Internal.NativeAttributes;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 

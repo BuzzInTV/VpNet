@@ -1,4 +1,4 @@
-﻿namespace VpNet.NativeApi
+﻿namespace VpNet.Internal.NativeAttributes
 {
     internal enum FloatAttribute
     {

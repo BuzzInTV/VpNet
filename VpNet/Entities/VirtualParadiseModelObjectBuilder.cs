@@ -2,6 +2,7 @@
 using System.Numerics;
 using VpNet.Extensions;
 using VpNet.Internal;
+using VpNet.Internal.NativeAttributes;
 using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 
