@@ -14,7 +14,6 @@ using VpNet.EventData;
 using VpNet.Exceptions;
 using VpNet.Internal;
 using VpNet.Internal.NativeAttributes;
-using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 
 namespace VpNet

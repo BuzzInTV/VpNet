@@ -1,6 +1,6 @@
 ﻿using VpNet.Entities;
 
-namespace VpNet.NativeApi
+namespace VpNet
 {
     /// <summary>
     ///     An enumeration of URI targets.

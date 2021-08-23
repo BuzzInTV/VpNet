@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using VpNet.Internal;
 using VpNet.Internal.NativeAttributes;
-using VpNet.NativeApi;
 using static VpNet.Internal.Native;
 
 namespace VpNet.Entities
