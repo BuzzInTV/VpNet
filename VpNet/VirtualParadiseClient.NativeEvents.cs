@@ -402,9 +402,6 @@ namespace VpNet
             var avatar = GetAvatar(session);
             var args = new TeleportedEventArgs(avatar, location);
             RaiseEvent(Teleported, args);
-
-            if (args.Accepted)
-                await CurrentAvatar.TeleportAsync(location);
         }
 
         private async void OnObjectBumpEndNativeEvent(IntPtr sender)
