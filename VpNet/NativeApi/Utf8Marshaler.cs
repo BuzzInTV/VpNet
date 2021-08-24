@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -99,9 +99,12 @@ namespace VpNet.NativeApi
                 return null;
             }
 
-            var buffer = new byte[GetStringLength(pNativeData)];
-            Marshal.Copy(pNativeData, buffer, 0, buffer.Length);
-            return Encoding.UTF8.GetString(buffer);
+            unsafe
+            {
+                int length = GetStringLength(pNativeData);
+                Span<byte> buffer = new Span<byte>(pNativeData.ToPointer(), length);
+                return Encoding.UTF8.GetString(buffer);
+            }
         }
     }
 }
