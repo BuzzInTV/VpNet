@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace VpNet.Entities
 {
@@ -8,9 +9,12 @@ namespace VpNet.Entities
     /// </summary>
     public sealed class VirtualParadiseWorld : IEquatable<VirtualParadiseWorld>
     {
-        internal VirtualParadiseWorld(string name)
+        private readonly VirtualParadiseClient _client;
+
+        internal VirtualParadiseWorld(VirtualParadiseClient client, string name)
         {
             Name = name;
+            _client = client;
         }
 
         /// <summary>
@@ -23,6 +27,12 @@ namespace VpNet.Entities
         ///     Gets the name of this world.
         /// </summary>
         public string Name { get; } = string.Empty;
+
+        /// <summary>
+        ///     Gets the settings for this world.
+        /// </summary>
+        /// <value>The settings for this world.</value>
+        public WorldSettings Settings { get; internal set; } = new();
         
         /// <summary>
         ///     Gets the size of this world.
@@ -73,6 +83,22 @@ namespace VpNet.Entities
 
         /// <inheritdoc />
         public override int GetHashCode() => (Name != null ? Name.GetHashCode() : 0);
+        
+        /// <summary>
+        ///     Modifies the world settings globally.
+        /// </summary>
+        /// <param name="action">The builder which defines parameters to change.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="action" /> is <see langword="null" />.</exception>
+        /// <exception cref="UnauthorizedAccessException">The client does not have permission to modify world settings.</exception>
+        public async ValueTask ModifyAsync(Action<WorldSettingsBuilder> action)
+        {
+            if (action is null) throw new ArgumentNullException(nameof(action));
+
+            var builder = new WorldSettingsBuilder(_client);
+            await Task.Run(() => action(builder));
+
+            builder.SendChanges();
+        }
 
         /// <inheritdoc />
         public override string ToString() => $"World [Name={Name}]";

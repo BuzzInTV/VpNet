@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using System.Text;
 using Cysharp.Text;
@@ -28,6 +28,13 @@ namespace VpNet.Extensions
             return float.Parse(chars.Trim());
         }
 
+        public static Vector2 ToVector2(this ReadOnlySpan<byte> value)
+        {
+            Span<char> chars = stackalloc char[value.Length];
+            Encoding.UTF8.GetChars(value, chars);
+            return ToVector2(chars.Trim());
+        }
+
         public static Vector3 ToVector3(this ReadOnlySpan<byte> value)
         {
             Span<char> chars = stackalloc char[value.Length];
@@ -40,6 +47,53 @@ namespace VpNet.Extensions
             Span<char> chars = stackalloc char[value.Length];
             Encoding.UTF8.GetChars(value, chars);
             return ToVector3d(chars.Trim());
+        }
+
+        public static Vector4 ToVector4(this ReadOnlySpan<byte> value)
+        {
+            Span<char> chars = stackalloc char[value.Length];
+            Encoding.UTF8.GetChars(value, chars);
+            return ToVector4(chars.Trim());
+        }
+
+        public static Vector2 ToVector2(this ReadOnlySpan<char> value)
+        {
+            float x = 0;
+            float y = 0;
+            byte spaceCount = 0;
+
+            using var buffer = new Utf8ValueStringBuilder(false);
+            for (int index = 0; index < value.Length; index++)
+            {
+                char current = value[index];
+
+                if (char.IsDigit(current) || current is '.' or '-')
+                {
+                    buffer.Append(current);
+                    if (index < value.Length - 1)
+                        continue;
+                }
+
+                if (current != ' ')
+                    continue;
+
+                ReadOnlySpan<byte> span = buffer.AsSpan();
+                float floatValue = span.ToSingle();
+
+                switch (++spaceCount)
+                {
+                    case 1:
+                        x = floatValue;
+                        break;
+                    case 2:
+                        y = floatValue;
+                        break;
+                }
+
+                buffer.Clear();
+            }
+
+            return new Vector2(x, y);
         }
 
         public static Vector3 ToVector3(this ReadOnlySpan<char> value)
@@ -128,6 +182,54 @@ namespace VpNet.Extensions
             }
 
             return new Vector3d(x, y, z);
+        }
+
+        public static Vector4 ToVector4(this ReadOnlySpan<char> value)
+        {
+            float x = 0;
+            float y = 0;
+            float z = 0;
+            float w = 0;
+            byte spaceCount = 0;
+
+            using var buffer = new Utf8ValueStringBuilder(false);
+            for (int index = 0; index < value.Length; index++)
+            {
+                char current = value[index];
+
+                if (char.IsDigit(current) || current is '.' or '-')
+                {
+                    buffer.Append(current);
+                    if (index < value.Length - 1)
+                        continue;
+                }
+
+                if (current != ' ')
+                    continue;
+
+                ReadOnlySpan<byte> span = buffer.AsSpan();
+                float floatValue = span.ToSingle();
+
+                switch (++spaceCount)
+                {
+                    case 1:
+                        x = floatValue;
+                        break;
+                    case 2:
+                        y = floatValue;
+                        break;
+                    case 3:
+                        z = floatValue;
+                        break;
+                    case 4:
+                        w = floatValue;
+                        break;
+                }
+
+                buffer.Clear();
+            }
+
+            return new Vector4(x, y, z, w);
         }
     }
 }

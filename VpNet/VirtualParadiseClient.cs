@@ -14,6 +14,7 @@ using VpNet.EventData;
 using VpNet.Exceptions;
 using VpNet.Internal;
 using VpNet.Internal.NativeAttributes;
+using VpNet.Internal.ValueConverters;
 using static VpNet.Internal.Native;
 
 namespace VpNet
@@ -27,6 +28,8 @@ namespace VpNet
         private const int DefaultUniversePort = 57000;
 
         private readonly VirtualParadiseConfiguration _configuration;
+
+        private readonly ConcurrentDictionary<string, string> _worldSettings = new();
 
         private readonly ConcurrentDictionary<int, VirtualParadiseAvatar> _avatars = new();
         private readonly ConcurrentDictionary<int, VirtualParadiseObject> _objects = new();
@@ -459,12 +462,9 @@ namespace VpNet
         {
             if (worldName is null) throw new ArgumentNullException(nameof(worldName));
 
-            if (CurrentWorld is not null)
+            if (CurrentWorld is not null!)
             {
-                lock (Lock)
-                {
-                    vp_leave(NativeInstanceHandle);
-                }
+                lock (Lock) vp_leave(NativeInstanceHandle);
             }
 
             ReasonCode reason;
@@ -513,13 +513,17 @@ namespace VpNet
 
             int size;
             lock (Lock) size = vp_int(NativeInstanceHandle, IntegerAttribute.WorldSize);
-
-            // await _worldSettingsCompletionSource.Task;
+            
+            await _worldSettingsCompletionSource.Task;
 
             var world = await GetWorldAsync(worldName);
             world.Size = new Size(size, size);
-            // CurrentWorld.Settings = WorldSettingsConverter.FromDictionary(_worldSettings);
-            // _worldSettings.Clear();
+
+            if (CurrentWorld is not null)
+            {
+                CurrentWorld.Settings = WorldSettingsConverter.FromDictionary(_worldSettings);
+                _worldSettings.Clear();
+            }
 
             CurrentAvatar = new VirtualParadiseAvatar(this, -1)
             {
@@ -538,7 +542,7 @@ namespace VpNet
                 });
             }
 
-            return CurrentWorld;
+            return CurrentWorld!;
         }
 
         /// <summary>
@@ -675,10 +679,7 @@ namespace VpNet
             taskCompletionSource = new TaskCompletionSource<VirtualParadiseUser>();
             _usersCompletionSources.TryAdd(userId, taskCompletionSource);
 
-            lock (Lock)
-            {
-                vp_user_attributes_by_id(NativeInstanceHandle, userId);
-            }
+            lock (Lock) vp_user_attributes_by_id(NativeInstanceHandle, userId);
 
             user = await taskCompletionSource.Task;
             user = AddOrUpdateUser(user);

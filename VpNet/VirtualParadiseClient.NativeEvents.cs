@@ -22,8 +22,8 @@ namespace VpNet
             SetNativeEvent(NativeEvent.ObjectDelete, OnObjectDeleteNativeEvent);
             SetNativeEvent(NativeEvent.ObjectClick, OnObjectClickNativeEvent);
             SetNativeEvent(NativeEvent.WorldList, OnWorldListNativeEvent);
-            // SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
-            // SetNativeEvent(NativeEvent.WorldSettingsChanged, OnWorldSettingsChangedNativeEvent);
+            SetNativeEvent(NativeEvent.WorldSetting, OnWorldSettingNativeEvent);
+            SetNativeEvent(NativeEvent.WorldSettingsChanged, OnWorldSettingsChangedNativeEvent);
             SetNativeEvent(NativeEvent.Friend, OnFriendNativeEvent);
             SetNativeEvent(NativeEvent.WorldDisconnect, OnWorldDisconnectNativeEvent);
             SetNativeEvent(NativeEvent.UniverseDisconnect, OnUniverseDisconnectNativeEvent);
@@ -264,7 +264,7 @@ namespace VpNet
                 int avatarCount = vp_int(sender, IntegerAttribute.WorldUsers);
                 var state = (WorldState)vp_int(sender, IntegerAttribute.WorldState);
 
-                world = new VirtualParadiseWorld(name)
+                world = new VirtualParadiseWorld(this, name)
                 {
                     AvatarCount = avatarCount,
                     State = state
@@ -273,6 +273,21 @@ namespace VpNet
 
             if (_worldListChannel is not null)
                 await _worldListChannel.Writer.WriteAsync(world);
+        }
+
+        private void OnWorldSettingNativeEvent(IntPtr sender)
+        {
+            lock (Lock)
+            {
+                string key = vp_string(NativeInstanceHandle, StringAttribute.WorldSettingKey);
+                string value = vp_string(NativeInstanceHandle, StringAttribute.WorldSettingValue);
+                _worldSettings.TryAdd(key, value);
+            }
+        }
+
+        private void OnWorldSettingsChangedNativeEvent(IntPtr sender)
+        {
+            _worldSettingsCompletionSource.SetResult();
         }
 
         private async void OnFriendNativeEvent(IntPtr sender)

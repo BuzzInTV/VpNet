@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using VpNet.Internal.NativeAttributes;
-using VpNet.NativeApi;
 
 namespace VpNet.Internal
 {
