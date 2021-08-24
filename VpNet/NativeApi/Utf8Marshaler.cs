@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -34,10 +34,10 @@ namespace VpNet.NativeApi
 
         public IntPtr MarshalManagedToNative(object managedObj)
         {
-            var utf32Data = Encoding.UTF8.GetBytes((string)managedObj);
-            var buffer = Marshal.AllocHGlobal(utf32Data.Length + 1);
-            Marshal.Copy(utf32Data, 0, buffer, utf32Data.Length);
-            Marshal.WriteByte(buffer, utf32Data.Length, 0);
+            byte[] utf8Data = Encoding.UTF8.GetBytes((string)managedObj);
+            IntPtr buffer = Marshal.AllocHGlobal(utf8Data.Length + 1);
+            Marshal.Copy(utf8Data, 0, buffer, utf8Data.Length);
+            Marshal.WriteByte(buffer, utf8Data.Length, 0);
             return buffer;
         }
 
