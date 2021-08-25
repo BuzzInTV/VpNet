@@ -3,7 +3,6 @@
         <TargetFramework>net5.0</TargetFramework>
         <RootNamespace>VpNet</RootNamespace>
         <AssemblyName>VpNet</AssemblyName>
-        <Nullable>enable</Nullable>
 
         <Title>Virtual Paradise .NET SDK</Title>
         <Authors>Sjef van Leeuwen, Edwin Rijkee, Oliver Booth</Authors>

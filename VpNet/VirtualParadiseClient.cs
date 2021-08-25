@@ -249,7 +249,7 @@ namespace VpNet
         {
             name ??= string.Empty;
 
-            if (message is null!)
+            if (message is null)
                 return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(message)));
 
             byte r = color?.R ?? 0;
@@ -462,7 +462,7 @@ namespace VpNet
         {
             if (worldName is null) throw new ArgumentNullException(nameof(worldName));
 
-            if (CurrentWorld is not null!)
+            if (CurrentWorld is not null)
             {
                 lock (Lock) vp_leave(NativeInstanceHandle);
             }
@@ -542,7 +542,7 @@ namespace VpNet
                 });
             }
 
-            return CurrentWorld!;
+            return CurrentWorld;
         }
 
         /// <summary>
@@ -871,7 +871,7 @@ namespace VpNet
         /// <exception cref="ArgumentException">The message is too long to send.</exception>
         public ValueTask SendMessageAsync(string message)
         {
-            if (message is null!)
+            if (message is null)
                 return ValueTask.FromException(ThrowHelper.ArgumentNullException(nameof(message)));
 
             lock (Lock)

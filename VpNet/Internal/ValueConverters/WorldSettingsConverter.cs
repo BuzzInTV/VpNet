@@ -10,9 +10,9 @@ namespace VpNet.Internal.ValueConverters
 {
     internal static class WorldSettingsConverter
     {
-        public static IReadOnlyDictionary<string, string?> ToDictionary(WorldSettingsBuilder settings)
+        public static IReadOnlyDictionary<string, string> ToDictionary(WorldSettingsBuilder settings)
         {
-            var dictionary = new Dictionary<string, string?>();
+            var dictionary = new Dictionary<string, string>();
             var properties = settings.GetType().GetProperties();
 
             foreach (var property in properties)
@@ -21,26 +21,26 @@ namespace VpNet.Internal.ValueConverters
                 if (attribute is null)
                     continue;
 
-                object? propertyValue = property.GetValue(settings);
+                object propertyValue = property.GetValue(settings);
                 Type propertyType = property.PropertyType;
 
                 if (propertyValue is null)
                     continue;
-                
-                string? result = propertyValue.ToString();
+
+                string result = propertyValue.ToString();
 
                 var converterAttribute = property.GetCustomAttribute<ValueConverterAttribute>();
                 if (converterAttribute is not null)
                 {
 #pragma warning disable 612
                     var converterType = converterAttribute.ConverterType;
-                    
-                    ValueConverter? converter;
+
+                    ValueConverter converter;
                     if (converterAttribute.UseArgs)
                         converter = Activator.CreateInstance(converterType, converterAttribute.Args) as ValueConverter;
                     else
                         converter = Activator.CreateInstance(converterType) as ValueConverter;
-                    
+
                     if (converter is not null)
                     {
                         using var writer = new StringWriter();
@@ -52,7 +52,7 @@ namespace VpNet.Internal.ValueConverters
                 else
                 {
                     if (propertyType == typeof(bool) || propertyType == typeof(bool?))
-                        result = (bool) propertyValue ? "1" : "0";
+                        result = (bool)propertyValue ? "1" : "0";
                 }
 
                 if (result is not null)
@@ -79,14 +79,15 @@ namespace VpNet.Internal.ValueConverters
             foreach ((string key, string value) in dictionary)
             {
                 var property = properties.FirstOrDefault(p =>
-                    string.Equals(p.GetCustomAttribute<SerializationKeyAttribute>()?.Key, key, StringComparison.OrdinalIgnoreCase));
+                    string.Equals(p.GetCustomAttribute<SerializationKeyAttribute>()?.Key, key,
+                        StringComparison.OrdinalIgnoreCase));
 
                 if (property is null)
                     continue;
 
                 using var reader = new StringReader(value);
                 object propertyValue = value;
-                Type? converterType = null;
+                Type converterType = null;
 
                 var converterAttribute = property.GetCustomAttribute<ValueConverterAttribute>();
                 if (converterAttribute is not null)
@@ -109,10 +110,11 @@ namespace VpNet.Internal.ValueConverters
                         propertyValue = Convert.ChangeType(result, propertyType);
                 }
 
+                // ReSharper disable ConditionIsAlwaysTrueOrFalse
 #pragma warning disable 612
                 if (converterType is not null && converterAttribute is not null)
                 {
-                    ValueConverter? converter;
+                    ValueConverter converter;
                     if (converterAttribute.UseArgs)
                         converter = Activator.CreateInstance(converterType, converterAttribute.Args) as ValueConverter;
                     else
@@ -121,6 +123,7 @@ namespace VpNet.Internal.ValueConverters
                     converter?.Deserialize(reader, out propertyValue);
                 }
 #pragma warning restore 612
+                // ReSharper restore ConditionIsAlwaysTrueOrFalse
 
                 property.SetValue(settings, propertyValue);
             }

@@ -47,7 +47,7 @@ namespace VpNet
         /// </summary>
         /// <value>The name of the avatar list file in the object path..</value>
         [SerializationKey("avatar")]
-        public string? AvatarsFile { get; set; }
+        public string AvatarsFile { get; set; }
 
         /// <summary>
         ///     Gets or sets the entry position of the world, also known as "landing zone" (LZ) or "ground zero" (GZ).
@@ -121,7 +121,7 @@ namespace VpNet
         /// </summary>
         /// <value>The ground object. This value will be empty if <see cref="Terrain" /> is <see langword="true" />.</value>
         [SerializationKey("ground")]
-        public string? Ground { get; set; }
+        public string Ground { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the ground object specified by <see cref="Ground" /> should repeat.
@@ -142,14 +142,14 @@ namespace VpNet
         /// </summary>
         /// <value>The password for extracting password-protected ZIP files from the object path.</value>
         [SerializationKey("objectpassword")]
-        public string? ObjectPassword { get; set; }
+        public string ObjectPassword { get; set; }
 
         /// <summary>
         ///     Gets or sets the object path.
         /// </summary>
         /// <value>The object path.</value>
         [SerializationKey("objectpath")]
-        public string? ObjectPath { get; set; }
+        public string ObjectPath { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether per-pixel lighting is recommended.
@@ -209,14 +209,14 @@ namespace VpNet
         /// </summary>
         /// <value>The texture for the first sky cloud layer.</value>
         [SerializationKey("sky_clouds1")]
-        public string? SkyClouds1Texture { get; set; }
+        public string SkyClouds1Texture { get; set; }
 
         /// <summary>
         ///     Gets or sets the texture for the second sky cloud layer.
         /// </summary>
         /// <value>The texture for the second sky cloud layer.</value>
         [SerializationKey("sky_clouds2")]
-        public string? SkyClouds2Texture { get; set; }
+        public string SkyClouds2Texture { get; set; }
 
         /// <summary>
         ///     Gets or sets the velocity for the first sky cloud layer.
@@ -279,14 +279,14 @@ namespace VpNet
         /// </summary>
         /// <value>The skybox texture.</value>
         [SerializationKey("skybox")]
-        public string? Skybox { get; set; }
+        public string Skybox { get; set; }
 
         /// <summary>
         ///     Gets or sets the file extension for skybox textures.
         /// </summary>
         /// <value>The file extension for skybox textures.</value>
         [SerializationKey("skybox_extension")]
-        public string? SkyboxExtension { get; set; }
+        public string SkyboxExtension { get; set; }
 
         /// <summary>
         ///     Gets or sets a value indicating whether the X axis of skybox textures should be swapped.
@@ -331,14 +331,14 @@ namespace VpNet
         /// </summary>
         /// <value>The URL of the in-world web overlay.</value>
         [SerializationKey("web_overlay")]
-        public string? WebOverlay { get; set; }
+        public string WebOverlay { get; set; }
 
         /// <summary>
         ///     Gets or sets the welcome message.
         /// </summary>
         /// <value>The welcome message.</value>
         [SerializationKey("welcome")]
-        public string? WelcomeMessage { get; set; }
+        public string WelcomeMessage { get; set; }
 
         /// <summary>
         ///     Gets or sets the ambient light color of the world.
@@ -377,7 +377,7 @@ namespace VpNet
         /// </summary>
         /// <value>The name of the world.</value>
         [SerializationKey("worldname")]
-        public string? WorldName { get; set; }
+        public string WorldName { get; set; }
 
         internal void SendChanges()
         {
@@ -386,7 +386,7 @@ namespace VpNet
 
             lock (_client.Lock)
             {
-                foreach ((string key, string? value) in dictionary)
+                foreach ((string key, string value) in dictionary)
                 {
                     if (value is null)
                         continue;
