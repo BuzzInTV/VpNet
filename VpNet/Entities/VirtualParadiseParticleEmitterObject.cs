@@ -38,7 +38,7 @@ namespace VpNet.Entities
         /// <summary>
         ///     Gets the blend mode.
         /// </summary>
-        /// <value>The blend more.</value>
+        /// <value>The blend mode.</value>
         [SerializationKey("blend")]
         [ValueConverter(typeof(StringToEnumConverter<ParticleBlendMode>))]
         public ParticleBlendMode BlendMode { get; private set; }
