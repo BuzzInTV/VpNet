@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using VpNet.Internal.NativeAttributes;
+// ReSharper disable InconsistentNaming
 
 namespace VpNet.Internal
 {

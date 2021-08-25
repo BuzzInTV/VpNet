@@ -7,6 +7,7 @@ using System.Text;
 using Cysharp.Text;
 using VpNet.Internal.Attributes;
 using VpNet.Internal.ValueConverters;
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace VpNet.Entities
 {

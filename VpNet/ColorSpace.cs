@@ -6,6 +6,7 @@
     public enum ColorSpace
     {
         Linear,
+        // ReSharper disable once InconsistentNaming
         sRGB
     }
 }
