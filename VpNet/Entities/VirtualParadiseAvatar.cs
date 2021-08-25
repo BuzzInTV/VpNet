@@ -195,7 +195,11 @@ namespace VpNet.Entities
         ///     -or-
         ///     <para>The action cannot be performed outside of a world.</para>
         /// </exception>
-        public ValueTask SendConsoleMessageAsync(string name, string message, FontStyle style = FontStyle.Regular, Color? color = null)
+        public ValueTask SendConsoleMessageAsync(
+            string name,
+            string message,
+            FontStyle style = FontStyle.Regular,
+            Color? color = null)
         {
             name ??= string.Empty;
 
@@ -245,6 +249,22 @@ namespace VpNet.Entities
             }
 
             return ValueTask.CompletedTask;
+        }
+
+        /// <summary>
+        ///     Sends world settings which will only be applied to the current avatar.
+        /// </summary>
+        /// <param name="action">The builder which defines parameters to change.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="action" /> is <see langword="null" />.</exception>
+        /// <exception cref="UnauthorizedAccessException">The client does not have permission to modify world settings.</exception>
+        public async ValueTask SendWorldSettingsAsync(Action<WorldSettingsBuilder> action)
+        {
+            if (action is null) throw new ArgumentNullException(nameof(action));
+
+            var builder = new WorldSettingsBuilder(_client, Session);
+            await Task.Run(() => action(builder));
+
+            builder.SendChanges();
         }
 
         /// <summary>
