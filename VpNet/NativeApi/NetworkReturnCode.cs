@@ -1,6 +1,6 @@
 ﻿namespace VpNet.NativeApi
 {
-    internal enum NetworkReturnCode : int
+    internal enum NetworkReturnCode
     {
         Success = 0,
         ConnectionError = -1,

@@ -1,6 +1,6 @@
 ﻿namespace VpNet.NativeApi
 {
-    internal enum NetworkNotification : int
+    internal enum NetworkNotification
     {
         Connect,
         Disconnect,
